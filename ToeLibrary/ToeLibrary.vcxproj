@@ -157,7 +157,6 @@
   <ItemGroup>
     <ClInclude Include="branch.h" />
     <ClInclude Include="circuit.h" />
-    <ClInclude Include="circuit_converter.h" />
     <ClInclude Include="csv_reader.h" />
     <ClInclude Include="file_reader.h" />
     <ClInclude Include="matrix.h" />
@@ -165,7 +164,6 @@
   <ItemGroup>
     <ClCompile Include="branch.cpp" />
     <ClCompile Include="circuit.cpp" />
-    <ClCompile Include="circuit_converter.cpp" />
     <ClCompile Include="csv_reader.cpp" />
     <ClCompile Include="file_reader.cpp" />
     <ClCompile Include="matrix.cpp" />

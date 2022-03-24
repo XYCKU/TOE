@@ -1,4 +1,5 @@
 #pragma once
+#include <istream>
 #include <vector>
 
 namespace toe
@@ -14,6 +15,7 @@ namespace toe
 		double _amperageValue;
 
 		branch(std::size_t branchNumber, std::size_t branchBegin, std::size_t branchEnd, double resistorValue, double voltageValue, double amperageValue);
+		friend std::istream& operator>>(std::istream& in, branch& item);
 	};
 }
 

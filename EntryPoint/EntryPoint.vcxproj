@@ -145,6 +145,11 @@
   <ItemGroup>
     <ClCompile Include="EntryPoint.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ToeLibrary\ToeLibrary.vcxproj">
+      <Project>{ace68cb9-a4cc-466f-ae8a-b54409181e57}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
