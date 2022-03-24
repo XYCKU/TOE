@@ -20,7 +20,7 @@ namespace toe
 		matrix(std::size_t rows, std::size_t columns, double value);
 		matrix(std::size_t rows, std::size_t columns);
 		matrix(const matrix& other) = default;
-		matrix(matrix&& other) = default;
+		matrix(matrix&& other) noexcept = default;
 		
 		~matrix() = default;
 
@@ -29,8 +29,8 @@ namespace toe
 		matrix operator-() const;
 		matrix& operator=(const matrix&) = default;
 		matrix& operator=(matrix&&) = default;
-		friend bool operator==(const matrix& lhs, const matrix& rhs);
-		friend bool operator!=(const matrix& lhs, const matrix& rhs);
+		bool operator==(const matrix& other) const;
+		auto operator<=>(const matrix& other) const = default;
 		friend matrix operator+(const matrix& lhs, const matrix& rhs);
 		friend matrix operator-(const matrix& lhs, const matrix& rhs);
 		friend matrix operator*(const matrix& source, const double x);
@@ -42,7 +42,7 @@ namespace toe
 		[[nodiscard]] double get_determiner() const;
 		[[nodiscard]] matrix get_inverse() const;
 		[[nodiscard]] matrix get_diagonal_matrix() const;
-		[[nodiscard]] matrix transpose() const;
+		[[nodiscard]] matrix get_transposed() const;
 		
 		[[nodiscard]] bool is_compatible(const matrix& other) const;
 		[[nodiscard]] bool is_equal_size(const matrix& other) const;

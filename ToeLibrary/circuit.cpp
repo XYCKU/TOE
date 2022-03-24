@@ -1,7 +1,3 @@
-// файл "toe._rows"
-// в данном файле реализован класс circuit для работы с графом электрической цепи
-
-
 #include "circuit.h"
 #include <iostream>
 #include <fstream>
@@ -9,145 +5,55 @@
 
 namespace toe
 {
-	// считывает исходные данные цепи из файла и на их основе формирует граф электрической цепи
-	circuit::circuit(const std::string& path)
-	{
-		std::ifstream input_file(path);
-
-		std::size_t valuei;
-		std::size_t branchBegin;
-		std::size_t branchEnd;
-		double valuef;
-		char skipLine[256];
-
-		input_file.getline(skipLine, 256);
-		input_file.getline(skipLine, 256);
-
-		while (!input_file.eof())
-		{
-			input_file >> _branchesCount;
-
-			input_file >> valuei;
-			if ((branchBegin = valuei / 10) > _nodesCount)
-			{
-				_nodesCount = branchBegin;
-			}
-			if ((branchEnd = valuei % 10) > _nodesCount)
-			{
-				_nodesCount = branchEnd;
-			}
-
-			_branches.emplace_back(branchBegin - 1, branchEnd - 1);
-
-			input_file >> valuef;
-			_resistorValues.emplace_back(valuef);
-
-			input_file >> valuef;
-			_voltageValues.emplace_back(valuef);
-
-			input_file >> valuef;
-			_amperageValues.emplace_back(valuef);
-		}
-
-		input_file.close();
-	}
+	circuit::circuit(branches_data&& branches)
+		: _data(std::move(branches)) { }
 
 	// создает топологическую узловую матрицу по графу исходной цепи
-	toe::matrix circuit::get_nodes() const
+	matrix circuit::get_nodes() const
 	{
-		toe::matrix nodesMatrix(_nodesCount - 1, _branchesCount);
+		std::vector<std::vector<double>> nodesMatrix(_data._nodesAmount - 1, std::vector<double>(_data._branchNumber.size(), 0));
 
-		for (std::size_t i = 0; i < nodesMatrix.get_rows(); i++)
+		for (std::size_t i = 0; i < nodesMatrix.size(); ++i)
 		{
-			for (std::size_t j = 0; j < nodesMatrix.get_columns(); j++)
+			for (std::size_t j = 0; j < nodesMatrix[0].size(); ++j)
 			{
-				if (_branches[j].begin == i)
+				if (_data._branchBegin[j] == i)
 				{
-					nodesMatrix.at(i, j) = 1;
+					nodesMatrix[i][j] = 1;
 				}
-				else if (_branches[j].end == i)
+				else if (_data._branchEnd[j] == i)
 				{
-					nodesMatrix.at(i, j) = -1;
-				}
-				else
-				{
-					nodesMatrix.at(i, j) = 0;
+					nodesMatrix[i][j] = -1;
 				}
 			}
 		}
 
-		return nodesMatrix;
-	}
-
-	// создает матрицу источников тока для исходной цепи 
-	toe::matrix circuit::get_amperage_matrix() const
-	{
-		toe::matrix J(_branchesCount, 1);
-
-		for (std::size_t i = 0; i < _branchesCount; i++)
-		{
-			J.at(i, 0) = _amperageValues[i];
-		}
-
-		return J;
-	}
-
-	// создает матрицу источников напряжения для исходной цепи
-	toe::matrix circuit::get_voltage_matrix() const
-	{
-		toe::matrix E(_branchesCount, 1);
-
-		for (std::size_t i = 0; i < _branchesCount; i++)
-		{
-			E.at(i, 0) = _voltageValues[i];
-		}
-
-		return E;
-	}
-
-	// создает матрицу сопротивлений для исходной цепи
-	toe::matrix circuit::get_resistor_matrix() const
-	{
-		toe::matrix R(_branchesCount, 1);
-
-		for (std::size_t i = 0; i < _branchesCount; i++)
-		{
-			R.at(i, 0) = _resistorValues[i] < std::numeric_limits<double>::epsilon()
-							? std::numeric_limits<double>::epsilon()
-							: _resistorValues[i];
-		}
-
-		return R;
+		return matrix{ nodesMatrix };
 	}
 
 	// функция расчета электрической цепи методом узловых потенциалов
-	toe::matrix circuit::calculate() const
+	matrix circuit::calculate() const
 	{
-		// задаем матрицы с исходными данными
-		toe::matrix resistorMatrix = get_resistor_matrix();
-		toe::matrix voltageMatrix = get_voltage_matrix();
-		toe::matrix amperageMatrix = get_amperage_matrix();
+		matrix resistorMatrix{ _data._resistorValue };
+		matrix voltageMatrix{ _data._voltageValue };
+		matrix amperageMatrix{ _data._amperageValue };
+		
+		matrix resistorDiagonalMatrix = resistorMatrix.get_transposed().get_diagonal_matrix();
 
-		// формируем диагональную матрицу RD из матрицы R
-		toe::matrix RD = resistorMatrix.get_diagonal_matrix();
+		matrix circuitGraph = get_nodes();
 
-		// формируем матрицу соединений A для графа цепи
-		toe::matrix A = get_nodes();
-		//toe::matrix A(1, 1, -1);
-
-		// формируем матрицу проводимости G из матрицы RD
-		toe::matrix G = RD.get_inverse();
+		matrix conductivityMatrix = resistorDiagonalMatrix.get_inverse();
 
 		// вычисляем потенциалы всех узлов цепи по отношению к базисному узлу
-		toe::matrix F = (A * G * A.transpose()).get_inverse() * (-A * G * voltageMatrix - A * amperageMatrix);
+		matrix potentialMatrix = (circuitGraph * conductivityMatrix * circuitGraph.get_transposed()).get_inverse()
+							* (-circuitGraph * conductivityMatrix * voltageMatrix - circuitGraph * amperageMatrix);
 
 		// вычисляем напряжение на всех ветвях цепи
-		toe::matrix U = A.transpose() * F;
+		matrix u_matrix = circuitGraph.get_transposed() * potentialMatrix;
 
 		// вычисляем токи в сопротивлениях ветвей
-		toe::matrix IR = G * (U + voltageMatrix);
+		matrix resistorAmperageMatrix = conductivityMatrix * (u_matrix + voltageMatrix);
 
-		return IR;
+		return resistorAmperageMatrix;
 	}
-
 }

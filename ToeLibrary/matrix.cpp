@@ -28,10 +28,7 @@ namespace toe
 		: matrix(std::vector<std::vector<double>>(source)) { }
 
 	matrix::matrix(std::vector<double>&& matrix)
-		: matrix(std::vector<std::vector<double>> {1})
-	{
-		_data.front() = std::move(matrix);
-	}
+		: matrix(std::vector<std::vector<double>>{ std::move(matrix) }) { }
 
 	matrix::matrix(const std::vector<double>& source)
 		: matrix(std::vector<double>(source)) { }
@@ -125,16 +122,11 @@ namespace toe
 		return result;
 	}
 
-	bool operator==(const matrix& lhs, const matrix& rhs)
+	bool matrix::operator==(const matrix& other) const
 	{
-		return lhs._data == rhs._data;
+		return _data == other._data;
 	}
-
-	bool operator!=(const matrix& lhs, const matrix& rhs)
-	{
-		return !(lhs == rhs);
-	}
-
+	
 	matrix operator+(const matrix& lhs, const matrix& rhs)
 	{
 		if (!lhs.is_equal_size(rhs))
@@ -201,7 +193,7 @@ namespace toe
 
 			for (std::size_t i = 0; i < _rank - 1; ++i)
 			{
-				result += multiplier * minorMatrix._data[i][0] * get_minor(i, 0);
+				result += multiplier * minorMatrix._data[i][0] * minorMatrix.get_minor(i, 0);
 				multiplier *= -1;
 			}
 
@@ -228,25 +220,25 @@ namespace toe
 			throw std::out_of_range("minor_column is greater than source_matrix width.");
 		}
 
-		matrix minorMatrix(_rank - 1, _rank - 1);
-
-		for (std::size_t i = 0; i < minor_column; ++i)
+		std::vector<std::vector<double>> newData(_rank - 1, std::vector<double>(_rank - 1));
+		
+		for (std::size_t i = 0; i < minor_row; ++i)
 		{
-			const auto& minorRowIterator = std::next(_data[i].cbegin(), minor_row);
+			auto minorColumnIterator = std::next(_data[i].cbegin(), minor_column);
 
-			std::copy(_data[i].cbegin(), minorRowIterator, std::back_inserter(minorMatrix._data[i]));
-			std::copy(minorRowIterator + 1, _data[i].cend(), std::back_inserter(minorMatrix._data[i]));
+			std::copy(_data[i].cbegin(), minorColumnIterator, newData[i].begin());
+			std::copy(++minorColumnIterator, _data[i].cend(), newData[i].begin() + minor_column);
 		}
 
-		for (std::size_t i = minor_column + 1; i < _rows; ++i)
+		for (std::size_t i = minor_row + 1; i < _rows; ++i)
 		{
-			const auto& minorRowIterator = std::next(_data[i].cbegin(), minor_row);
+			auto minorColumnIterator = std::next(_data[i].cbegin(), minor_column);
 
-			std::copy(_data[i].cbegin(), minorRowIterator, std::back_inserter(minorMatrix._data[i - 1]));
-			std::copy(minorRowIterator + 1, _data[i].cend(), std::back_inserter(minorMatrix._data[i - 1]));
+			std::copy(_data[i].cbegin(), minorColumnIterator, newData[i - 1].begin());
+			std::copy(++minorColumnIterator, _data[i].cend(), newData[i - 1].begin() + minor_column);
 		}
 
-		return minorMatrix;
+		return matrix(std::move(newData));
 	}
 	
 	double matrix::get_determiner() const
@@ -324,7 +316,7 @@ namespace toe
 		return result;
 	}
 	
-	matrix matrix::transpose() const
+	matrix matrix::get_transposed() const
 	{
 		matrix result(_columns, _rows);
 

@@ -21,7 +21,7 @@
     <ClInclude Include="matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="branch.h">
+    <ClInclude Include="branches_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="csv_reader.h">
@@ -38,7 +38,7 @@
     <ClCompile Include="matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="branch.cpp">
+    <ClCompile Include="branches_data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="csv_reader.cpp">

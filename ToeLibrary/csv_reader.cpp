@@ -17,7 +17,7 @@ namespace toe
 		std::size_t lineIndex = 0;
 		while (std::getline(_in, line))
 		{
-			std::replace(line.begin(), line.end(), _delimiter, ' ');
+			std::ranges::replace(line, _delimiter, ' ');
 			result.emplace_back(line);
 			++lineIndex;
 		}

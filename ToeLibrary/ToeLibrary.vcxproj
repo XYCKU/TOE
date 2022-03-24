@@ -155,14 +155,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="branch.h" />
+    <ClInclude Include="branches_data.h" />
     <ClInclude Include="circuit.h" />
     <ClInclude Include="csv_reader.h" />
     <ClInclude Include="file_reader.h" />
     <ClInclude Include="matrix.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="branch.cpp" />
+    <ClCompile Include="branches_data.cpp" />
     <ClCompile Include="circuit.cpp" />
     <ClCompile Include="csv_reader.cpp" />
     <ClCompile Include="file_reader.cpp" />
