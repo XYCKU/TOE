@@ -53,8 +53,8 @@ namespace toe
 		Matrix u_matrix = transposedCircuitGraph * potentialMatrix;
 
 		// вычисляем токи в сопротивлениях ветвей
-		Matrix resistorAmperageMatrix = conductivityMatrix * (u_matrix + voltageMatrix);
+		Matrix resultMatrix = conductivityMatrix * (u_matrix + voltageMatrix);
 
-		return resistorAmperageMatrix;
+		return resultMatrix;
 	}
 }
