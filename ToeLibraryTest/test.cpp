@@ -72,7 +72,23 @@ TEST(GetTransposed_Tests, GetTransposed_Tests_MatrixSize1x1_Test)
 {
 	toe::Matrix actual(1, 1, 5);
 	toe::Matrix expected(1, 1, 5);
-	actual = actual.GetTransposed();
+	actual = actual.GetTransposedMatrix();
+	ASSERT_EQ(actual, expected);
+}
+
+TEST(GetTransposed_Tests, GetTransposed_Tests_MatrixSize1x5_Test)
+{
+	toe::Matrix actual(1, 5, 5);
+	toe::Matrix expected(5, 1, 5);
+	actual = actual.GetTransposedMatrix();
+	ASSERT_EQ(actual, expected);
+}
+
+TEST(GetTransposed_Tests, GetTransposed_Tests_MatrixSize5x1_Test)
+{
+	toe::Matrix actual(5, 1, 5);
+	toe::Matrix expected(1, 5, 5);
+	actual = actual.GetTransposedMatrix();
 	ASSERT_EQ(actual, expected);
 }
 
@@ -81,7 +97,7 @@ TEST(GetTransposed_Tests, GetTransposed_Tests_MatrixSize4x3_Test)
 	std::vector<std::vector<double>> vector = { {4,3,2}, {4,3,2}, {4,3,2}, {4,3,2} };
 	toe::Matrix actual(vector);
 	toe::Matrix expected({{4,4,4,4},{3,3,3,3},{2,2,2,2}});
-	actual = actual.GetTransposed();
+	actual = actual.GetTransposedMatrix();
 	ASSERT_EQ(actual, expected);
 }
 
@@ -90,7 +106,7 @@ TEST(GetTransposed_Tests, GetTransposed_Tests_MatrixSize3x3_Test)
 	std::vector<std::vector<double>> vector = { {4,4,4}, {4,4,4}, {4,4,4}, {4,4,4} };
 	toe::Matrix actual(vector);
 	toe::Matrix expected({ {4,4,4,4},{4,4,4,4},{4,4,4,4} });
-	actual = actual.GetTransposed();
+	actual = actual.GetTransposedMatrix();
 	ASSERT_EQ(actual, expected);
 }
 
@@ -130,6 +146,14 @@ TEST(GetMinor_Tests, GetMinor_Tests_MatrixSize3x3_Minor_0_0_Test)
 	ASSERT_EQ(actual, expected);
 }
 
+TEST(GetMinor_Tests, GetMinor_Tests_DiagMatrixSize3x3_Minor_1_1_Test)
+{
+	std::vector<std::vector<double>> vector{ {26,0,0},{0,41,0},{0,0,5} };
+	toe::Matrix m(std::move(vector));
+	double actual = m.GetMinor(1, 1);
+	double expected = 130;
+	ASSERT_EQ(actual, expected);
+}
 
 TEST(GetMinor_Tests, GetMinor_Tests_MatrixSize3x3_Minor_0_1_Test)
 {
@@ -207,7 +231,7 @@ TEST(GetDeterminer_Tests, GetDeternimer_Tests_MatrixSize4x4_Test)
 {
 	std::vector<std::vector<double>> vector{ {1,25,3,0},{1,8,2,6},{9,10,11,12}, {13,14,15,16} };
 	toe::Matrix m(std::move(vector));
-	double actual = m.getDeterminer();
+	double actual = m.GetDeterminer();
 	double expected = 852;
 	ASSERT_EQ(actual, expected);
 }
@@ -216,7 +240,7 @@ TEST(GetDeterminer_Tests, GetDeternimer_Tests_MatrixSize3x3_Test)
 {
 	std::vector<std::vector<double>> vector{ {1,2,3},{4,5,6},{7,8,9} };
 	toe::Matrix m(std::move(vector));
-	double actual = m.getDeterminer();
+	double actual = m.GetDeterminer();
 	double expected = 0;
 	ASSERT_EQ(actual, expected);
 }
@@ -225,7 +249,7 @@ TEST(GetDeterminer_Tests, GetDeternimer_Tests_MatrixSize2x2_Test)
 {
 	std::vector<std::vector<double>> vector{ {1,2},{3,4}};
 	toe::Matrix m(std::move(vector));
-	double actual = m.getDeterminer();
+	double actual = m.GetDeterminer();
 	double expected = -2;
 	ASSERT_EQ(actual, expected);
 }
@@ -234,7 +258,7 @@ TEST(GetDeterminer_Tests, GetDeternimer_Tests_MatrixSize1x1_Test)
 {
 	std::vector<std::vector<double>> vector{ {1} };
 	toe::Matrix m(std::move(vector));
-	double actual = m.getDeterminer();
+	double actual = m.GetDeterminer();
 	double expected = 1;
 	ASSERT_EQ(actual, expected);
 }

@@ -57,7 +57,7 @@ namespace toe
 
 	bool Matrix::IsSquare() const
 	{
-		return _rank != 0;
+		return _rank > 0;
 	}
 
 	bool Matrix::IsSingleColumn() const
@@ -91,20 +91,20 @@ namespace toe
 			throw std::length_error("Matrices have incompatible sizes.");
 		}
 
-		Matrix result(lhs._rows, rhs._columns, 0);
-
-		for (std::size_t i = 0; i < result._rows; ++i)
+		std::vector<std::vector<double>> resultMatrix(lhs._rows, std::vector<double>(rhs._columns, 0));
+		
+		for (std::size_t i = 0; i < lhs._rows; ++i)
 		{
-			for (std::size_t j = 0; j < result._columns; ++j)
+			for (std::size_t j = 0; j < rhs._columns; ++j)
 			{
 				for (std::size_t k = 0; k < lhs._columns; ++k)
 				{
-					result._data[i][j] += lhs._data[i][k] * rhs._data[k][j];
+					resultMatrix[i][j] += lhs._data[i][k] * rhs._data[k][j];
 				}
 			}
 		}
 
-		return result;
+		return Matrix{ std::move(resultMatrix) };
 	}
 	
 	Matrix operator*(const Matrix& source, const double x)
@@ -138,18 +138,17 @@ namespace toe
 		{
 			throw std::length_error("Matrices have different sizes.");
 		}
-
-		Matrix result(lhs._rows, lhs._columns);
-
-		for (std::size_t i = 0; i < result._rows; ++i)
+		std::vector<std::vector<double>> resultMatrix(lhs._rows, std::vector<double>(lhs._columns));
+		
+		for (std::size_t i = 0; i < lhs._rows; ++i)
 		{
-			for (std::size_t j = 0; j < result._columns; ++j)
+			for (std::size_t j = 0; j < lhs._columns; ++j)
 			{
-				result._data[i][j] = lhs._data[i][j] + rhs._data[i][j];
+				resultMatrix[i][j] = lhs._data[i][j] + rhs._data[i][j];
 			}
 		}
 
-		return result;
+		return Matrix{ std::move(resultMatrix) };
 	}
 
 	Matrix operator-(const Matrix& lhs, const Matrix& rhs)
@@ -159,17 +158,17 @@ namespace toe
 			throw std::length_error("Matrices have different sizes.");
 		}
 
-		Matrix result(lhs._rows, lhs._columns);
+		std::vector<std::vector<double>> resultMatrix(lhs._rows, std::vector<double>(lhs._columns));
 
-		for (std::size_t i = 0; i < result._rows; ++i)
+		for (std::size_t i = 0; i < lhs._rows; ++i)
 		{
-			for (std::size_t j = 0; j < result._columns; ++j)
+			for (std::size_t j = 0; j < lhs._columns; ++j)
 			{
-				result._data[i][j] = lhs._data[i][j] - rhs._data[i][j];
+				resultMatrix[i][j] = lhs._data[i][j] - rhs._data[i][j];
 			}
 		}
 
-		return result;
+		return Matrix{ std::move(resultMatrix) };
 	}
 	
 	Matrix Matrix::operator-() const
@@ -180,7 +179,7 @@ namespace toe
 		{
 			for (std::size_t j = 0; j < result._columns; ++j)
 			{
-				result._data[i][j] *= -1;
+				result._data[i][j] = -result._data[i][j];
 			}
 		}
 
@@ -189,23 +188,7 @@ namespace toe
 	
 	double Matrix::GetMinor(std::size_t minor_row, std::size_t minor_column) const
 	{
-		const Matrix minorMatrix = GetMinorMatrix(minor_row, minor_column);
-
-		if (minorMatrix._rank > 1)
-		{
-			double result = 0;
-			int multiplier = 1;
-
-			for (std::size_t i = 0; i < _rank - 1; ++i)
-			{
-				result += multiplier * minorMatrix._data[i][0] * minorMatrix.GetMinor(i, 0);
-				multiplier *= -1;
-			}
-
-			return result;
-		}
-
-		return minorMatrix._data[0][0];
+		return GetMinorMatrix(minor_row, minor_column).GetDeterminer();
 	}
 
 	Matrix Matrix::GetMinorMatrix(std::size_t minor_row, std::size_t minor_column) const
@@ -225,28 +208,28 @@ namespace toe
 			throw std::out_of_range("minor_column is greater than source_matrix width.");
 		}
 
-		std::vector<std::vector<double>> newData(_rank - 1, std::vector<double>(_rank - 1));
+		std::vector<std::vector<double>> resultMatrix(_rank - 1, std::vector<double>(_rank - 1));
 		
 		for (std::size_t i = 0; i < minor_row; ++i)
 		{
 			auto minorColumnIterator = std::next(_data[i].cbegin(), minor_column);
 
-			std::copy(_data[i].cbegin(), minorColumnIterator, newData[i].begin());
-			std::copy(++minorColumnIterator, _data[i].cend(), newData[i].begin() + minor_column);
+			std::copy(_data[i].cbegin(), minorColumnIterator, resultMatrix[i].begin());
+			std::copy(++minorColumnIterator, _data[i].cend(), resultMatrix[i].begin() + minor_column);
 		}
 
 		for (std::size_t i = minor_row + 1; i < _rows; ++i)
 		{
 			auto minorColumnIterator = std::next(_data[i].cbegin(), minor_column);
 
-			std::copy(_data[i].cbegin(), minorColumnIterator, newData[i - 1].begin());
-			std::copy(++minorColumnIterator, _data[i].cend(), newData[i - 1].begin() + minor_column);
+			std::copy(_data[i].cbegin(), minorColumnIterator, resultMatrix[i - 1].begin());
+			std::copy(++minorColumnIterator, _data[i].cend(), resultMatrix[i - 1].begin() + minor_column);
 		}
 
-		return Matrix(std::move(newData));
+		return Matrix(std::move(resultMatrix));
 	}
 	
-	double Matrix::getDeterminer() const
+	double Matrix::GetDeterminer() const
 	{
 		if (!IsSquare())
 		{
@@ -257,27 +240,46 @@ namespace toe
 		{
 			return _data[0][0];
 		}
+
+		if (_rank == 2)
+		{
+			return _data[0][0] * _data[1][1] - _data[0][1] * _data[1][0];
+		}
+
+		if (_rank == 3)
+		{
+			return _data[0][0] * _data[1][1] * _data[2][2]
+				+ _data[2][0] * _data[0][1] * _data[1][2]
+				+ _data[1][0] * _data[2][1] * _data[0][2]
+				- _data[2][0] * _data[1][1] * _data[0][2]
+				- _data[0][0] * _data[2][1] * _data[1][2]
+				- _data[1][0] * _data[0][1] * _data[2][2];
+		}
 		
 		double result = 0;
 		int multiplier = 1;
 
 		for (std::size_t i = 0; i < _rank; ++i)
 		{
-			result += _data[i][0] * multiplier * GetMinor(i, 0);
-			multiplier *= -1;
+			if (std::abs(_data[i][0]) > std::numeric_limits<double>::epsilon())
+			{
+				result += _data[i][0] * multiplier * GetMinor(i, 0);
+			}
+
+			multiplier = -multiplier;
 		}
 
 		return result;
 	}
 
-	Matrix Matrix::GetInverse() const
+	Matrix Matrix::GetInverseMatrix() const
 	{
 		if (!IsSquare())
 		{
 			throw std::out_of_range("Can't inverse Matrix because Matrix is not square");
 		}
 
-		const double determiner = getDeterminer();
+		const double determiner = GetDeterminer();
 
 		if (std::abs(determiner) < std::numeric_limits<double>::epsilon())
 		{
@@ -289,19 +291,19 @@ namespace toe
 			return Matrix { 1, 1, 1 / _data[0][0] };
 		}
 
-		Matrix result(_rank, _rank);
-
-		int multiplier = 1;
+		std::vector<std::vector<double>> resultMatrix(_rank, std::vector<double>(_rank));
+		
+		double multiplier = 1 / determiner;
 		for (std::size_t i = 0; i < _rank; i++)
 		{
 			for (std::size_t j = 0; j < _rank; j++)
 			{
-				result._data[i][j] = multiplier * GetMinor(j, i) / determiner;
-				multiplier *= -1;
+				resultMatrix[i][j] = multiplier * GetMinor(j, i);
+				multiplier = -multiplier;
 			}
 		}
 
-		return result ;
+		return Matrix{ std::move(resultMatrix) };
 	}
 	
 	Matrix Matrix::GetDiagonalMatrix() const
@@ -311,29 +313,29 @@ namespace toe
 			throw std::out_of_range("Matrix is not single column");
 		}
 
-		Matrix result(_columns, _columns, 0);
-
-		for (std::size_t i = 0; i < _columns; i++)
+		std::vector<std::vector<double>> resultMatrix(_rows, std::vector<double>(_rows, 0));
+		
+		for (std::size_t i = 0; i < _rows; i++)
 		{
-			result._data[i][i] = _data[i][0];
+			resultMatrix[i][i] = _data[i][0];
 		}
 
-		return result;
+		return Matrix{ std::move(resultMatrix) };
 	}
 	
-	Matrix Matrix::GetTransposed() const
+	Matrix Matrix::GetTransposedMatrix() const
 	{
-		Matrix result(_columns, _rows);
-
+		std::vector<std::vector<double>> resultMatrix(_columns, std::vector<double>(_rows));
+		
 		for (std::size_t i = 0; i < _rows; i++)
 		{
 			for (std::size_t j = 0; j < _columns; j++)
 			{
-				result._data[j][i] = _data[i][j];
+				resultMatrix[j][i] = _data[i][j];
 			}
 		}
 
-		return result;
+		return Matrix{ std::move(resultMatrix) };
 	}
 
 	std::size_t Matrix::GetRows() const

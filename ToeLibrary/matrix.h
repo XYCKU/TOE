@@ -40,10 +40,10 @@ namespace toe
 
 		[[nodiscard]] double GetMinor(std::size_t minor_row, std::size_t minor_column) const;
 		[[nodiscard]] Matrix GetMinorMatrix(std::size_t minor_row, std::size_t minor_column) const;
-		[[nodiscard]] double getDeterminer() const;
-		[[nodiscard]] Matrix GetInverse() const;
+		[[nodiscard]] double GetDeterminer() const;
+		[[nodiscard]] Matrix GetInverseMatrix() const;
 		[[nodiscard]] Matrix GetDiagonalMatrix() const;
-		[[nodiscard]] Matrix GetTransposed() const;
+		[[nodiscard]] Matrix GetTransposedMatrix() const;
 		
 		[[nodiscard]] bool IsCompatible(const Matrix& other) const;
 		[[nodiscard]] bool IsEqualSize(const Matrix& other) const;

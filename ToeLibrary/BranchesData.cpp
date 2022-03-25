@@ -47,8 +47,8 @@ namespace toe
 		item._nodesAmount = std::max(item._nodesAmount, branchEnd);
 
 		item._branchNumber.emplace_back(branchNumber);
-		item._branchBegin.emplace_back(branchBegin);
-		item._branchEnd.emplace_back(branchEnd);
+		item._branchBegin.emplace_back(branchBegin - 1);
+		item._branchEnd.emplace_back(branchEnd - 1);
 		item._resistorValue.emplace_back(resistorValue);
 		item._voltageValue.emplace_back(voltageValue);
 		item._amperageValue.emplace_back(amperageValue);

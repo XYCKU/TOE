@@ -29,7 +29,7 @@ int main()
 	toe::Matrix IR = circuit.Calculate();
 
 	std::cout << "Токи в сопротивлениях ветвей, А\n";
-	std::cout << IR.GetTransposed() << std::endl;
+	std::cout << IR.GetTransposedMatrix() << std::endl;
 
 	return 0;
 }

@@ -22,7 +22,7 @@ namespace toe
 		~Circuit() = default;
 		
 		[[]]
-		[[nodiscard]] Matrix GetNodes() const;
+		[[nodiscard]] Matrix GetNodesMatrix() const;
 		[[nodiscard]] Matrix Calculate() const;
 	};
 }
