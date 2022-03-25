@@ -1,15 +1,15 @@
-#include "circuit.h"
+#include "Circuit.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
 
 namespace toe
 {
-	circuit::circuit(branches_data&& branches)
+	Circuit::Circuit(BranchesData&& branches)
 		: _data(std::move(branches)) { }
 
 	// создает топологическую узловую матрицу по графу исходной цепи
-	matrix circuit::get_nodes() const
+	Matrix Circuit::GetNodes() const
 	{
 		std::vector<std::vector<double>> nodesMatrix(_data._nodesAmount - 1, std::vector<double>(_data._branchNumber.size(), 0));
 
@@ -28,31 +28,31 @@ namespace toe
 			}
 		}
 
-		return matrix{ nodesMatrix };
+		return Matrix{ nodesMatrix };
 	}
 
 	// функция расчета электрической цепи методом узловых потенциалов
-	matrix circuit::calculate() const
+	Matrix Circuit::Calculate() const
 	{
-		matrix resistorMatrix{ _data._resistorValue };
-		matrix voltageMatrix{ _data._voltageValue };
-		matrix amperageMatrix{ _data._amperageValue };
+		Matrix resistorMatrix{ _data._resistorValue };
+		Matrix voltageMatrix{ _data._voltageValue };
+		Matrix amperageMatrix{ _data._amperageValue };
 		
-		matrix resistorDiagonalMatrix = resistorMatrix.get_transposed().get_diagonal_matrix();
+		Matrix resistorDiagonalMatrix = resistorMatrix.GetTransposed().GetDiagonalMatrix();
 
-		matrix circuitGraph = get_nodes();
+		Matrix circuitGraph = GetNodes();
 
-		matrix conductivityMatrix = resistorDiagonalMatrix.get_inverse();
+		Matrix conductivityMatrix = resistorDiagonalMatrix.GetInverse();
 
 		// вычисляем потенциалы всех узлов цепи по отношению к базисному узлу
-		matrix potentialMatrix = (circuitGraph * conductivityMatrix * circuitGraph.get_transposed()).get_inverse()
+		Matrix potentialMatrix = (circuitGraph * conductivityMatrix * circuitGraph.GetTransposed()).GetInverse()
 							* (-circuitGraph * conductivityMatrix * voltageMatrix - circuitGraph * amperageMatrix);
 
 		// вычисляем напряжение на всех ветвях цепи
-		matrix u_matrix = circuitGraph.get_transposed() * potentialMatrix;
+		Matrix u_matrix = circuitGraph.GetTransposed() * potentialMatrix;
 
 		// вычисляем токи в сопротивлениях ветвей
-		matrix resistorAmperageMatrix = conductivityMatrix * (u_matrix + voltageMatrix);
+		Matrix resistorAmperageMatrix = conductivityMatrix * (u_matrix + voltageMatrix);
 
 		return resistorAmperageMatrix;
 	}

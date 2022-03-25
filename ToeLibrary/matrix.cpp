@@ -1,7 +1,7 @@
 ﻿// файл "toe.cpp"
-// в данном файле реализован класс matrix для работы с матрицами
+// в данном файле реализован класс Matrix для работы с матрицами
 
-#include "matrix.h"
+#include "Matrix.h"
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -9,7 +9,7 @@
 
 namespace toe
 {
-	matrix::matrix(std::vector<std::vector<double>>&& source)
+	Matrix::Matrix(std::vector<std::vector<double>>&& source)
 		: _data(std::move(source))
 		, _rows(_data.size())
 		, _columns(_data.front().size())
@@ -24,53 +24,53 @@ namespace toe
 		}
 	}
 
-	matrix::matrix(const std::vector<std::vector<double>>& source)
-		: matrix(std::vector<std::vector<double>>(source)) { }
+	Matrix::Matrix(const std::vector<std::vector<double>>& source)
+		: Matrix(std::vector<std::vector<double>>(source)) { }
 
-	matrix::matrix(std::vector<double>&& matrix)
-		: matrix(std::vector<std::vector<double>>{ std::move(matrix) }) { }
+	Matrix::Matrix(std::vector<double>&& matrix)
+		: Matrix(std::vector<std::vector<double>>{ std::move(matrix) }) { }
 
-	matrix::matrix(const std::vector<double>& source)
-		: matrix(std::vector<double>(source)) { }
+	Matrix::Matrix(const std::vector<double>& source)
+		: Matrix(std::vector<double>(source)) { }
 
-	matrix::matrix(std::size_t rows, std::size_t columns, double value)
+	Matrix::Matrix(std::size_t rows, std::size_t columns, double value)
 		: _data(std::vector<std::vector<double>>{ rows, std::vector<double>(columns, value) })
 		, _rows(rows)
 		, _columns(columns)
 		, _rank(_rows == _columns ? _rows : 0) { }
 
-	matrix::matrix(std::size_t rows, std::size_t columns)
+	Matrix::Matrix(std::size_t rows, std::size_t columns)
 		: _data(std::vector<std::vector<double>>{ rows, std::vector<double>(columns) })
 		, _rows(rows)
 		, _columns(columns)
 		, _rank(_rows == _columns ? _rows : 0) { }
 
-	bool matrix::is_compatible(const matrix& other) const
+	bool Matrix::IsCompatible(const Matrix& other) const
 	{
 		return _columns == other._rows;
 	}
 
-	bool matrix::is_equal_size(const matrix& other) const
+	bool Matrix::IsEqualSize(const Matrix& other) const
 	{
 		return _columns == other._columns && _rows == other._rows;
 	}
 
-	bool matrix::is_square() const
+	bool Matrix::IsSquare() const
 	{
 		return _rank != 0;
 	}
 
-	bool matrix::is_single_column() const
+	bool Matrix::IsSingleColumn() const
 	{
 		return _columns == 1;
 	}
 
-	double& matrix::at(std::size_t i, std::size_t j)
+	double& Matrix::at(std::size_t i, std::size_t j)
 	{
-		return _data[i][j];
+		return _data.at(i).at(j);
 	}
 	
-	std::ostream& operator<<(std::ostream& os, const matrix& matrix)
+	std::ostream& operator<<(std::ostream& os, const Matrix& matrix)
 	{
 		for (const auto& line : matrix._data)
 		{
@@ -84,14 +84,14 @@ namespace toe
 		return os;
 	}
 	
-	matrix operator*(const matrix& lhs, const matrix& rhs)
+	Matrix operator*(const Matrix& lhs, const Matrix& rhs)
 	{
-		if (!lhs.is_compatible(rhs))
+		if (!lhs.IsCompatible(rhs))
 		{
 			throw std::length_error("Matrices have incompatible sizes.");
 		}
 
-		matrix result(lhs._rows, rhs._columns, 0);
+		Matrix result(lhs._rows, rhs._columns, 0);
 
 		for (std::size_t i = 0; i < result._rows; ++i)
 		{
@@ -107,9 +107,9 @@ namespace toe
 		return result;
 	}
 	
-	matrix operator*(const matrix& source, const double x)
+	Matrix operator*(const Matrix& source, const double x)
 	{
-		matrix result = source;
+		Matrix result = source;
 
 		for (auto& line : result._data)
 		{
@@ -122,19 +122,24 @@ namespace toe
 		return result;
 	}
 
-	bool matrix::operator==(const matrix& other) const
+	const std::vector<double>& Matrix::operator[](std::size_t index)
+	{
+		return _data[index];
+	}
+
+	bool Matrix::operator==(const Matrix& other) const
 	{
 		return _data == other._data;
 	}
 	
-	matrix operator+(const matrix& lhs, const matrix& rhs)
+	Matrix operator+(const Matrix& lhs, const Matrix& rhs)
 	{
-		if (!lhs.is_equal_size(rhs))
+		if (!lhs.IsEqualSize(rhs))
 		{
 			throw std::length_error("Matrices have different sizes.");
 		}
 
-		matrix result(lhs._rows, lhs._columns);
+		Matrix result(lhs._rows, lhs._columns);
 
 		for (std::size_t i = 0; i < result._rows; ++i)
 		{
@@ -147,14 +152,14 @@ namespace toe
 		return result;
 	}
 
-	matrix operator-(const matrix& lhs, const matrix& rhs)
+	Matrix operator-(const Matrix& lhs, const Matrix& rhs)
 	{
-		if (!lhs.is_equal_size(rhs))
+		if (!lhs.IsEqualSize(rhs))
 		{
 			throw std::length_error("Matrices have different sizes.");
 		}
 
-		matrix result(lhs._rows, lhs._columns);
+		Matrix result(lhs._rows, lhs._columns);
 
 		for (std::size_t i = 0; i < result._rows; ++i)
 		{
@@ -167,9 +172,9 @@ namespace toe
 		return result;
 	}
 	
-	matrix matrix::operator-() const
+	Matrix Matrix::operator-() const
 	{
-		matrix result = *this;
+		Matrix result = *this;
 
 		for (std::size_t i = 0; i < result._rows; ++i)
 		{
@@ -182,9 +187,9 @@ namespace toe
 		return result;
 	}
 	
-	double matrix::get_minor(std::size_t minor_row, std::size_t minor_column) const
+	double Matrix::GetMinor(std::size_t minor_row, std::size_t minor_column) const
 	{
-		const matrix minorMatrix = get_minor_matrix(minor_row, minor_column);
+		const Matrix minorMatrix = GetMinorMatrix(minor_row, minor_column);
 
 		if (minorMatrix._rank > 1)
 		{
@@ -193,7 +198,7 @@ namespace toe
 
 			for (std::size_t i = 0; i < _rank - 1; ++i)
 			{
-				result += multiplier * minorMatrix._data[i][0] * minorMatrix.get_minor(i, 0);
+				result += multiplier * minorMatrix._data[i][0] * minorMatrix.GetMinor(i, 0);
 				multiplier *= -1;
 			}
 
@@ -203,9 +208,9 @@ namespace toe
 		return minorMatrix._data[0][0];
 	}
 
-	matrix matrix::get_minor_matrix(std::size_t minor_row, std::size_t minor_column) const
+	Matrix Matrix::GetMinorMatrix(std::size_t minor_row, std::size_t minor_column) const
 	{
-		if (!is_square())
+		if (!IsSquare())
 		{
 			throw std::length_error("Matrix is not square.");
 		}
@@ -238,14 +243,14 @@ namespace toe
 			std::copy(++minorColumnIterator, _data[i].cend(), newData[i - 1].begin() + minor_column);
 		}
 
-		return matrix(std::move(newData));
+		return Matrix(std::move(newData));
 	}
 	
-	double matrix::get_determiner() const
+	double Matrix::getDeterminer() const
 	{
-		if (!is_square())
+		if (!IsSquare())
 		{
-			throw std::out_of_range("Can't calculate determiner for not square matrix.");
+			throw std::out_of_range("Can't calculate determiner for not square Matrix.");
 		}
 
 		if (_rank == 1)
@@ -258,40 +263,40 @@ namespace toe
 
 		for (std::size_t i = 0; i < _rank; ++i)
 		{
-			result += _data[i][0] * multiplier * get_minor(i, 0);
+			result += _data[i][0] * multiplier * GetMinor(i, 0);
 			multiplier *= -1;
 		}
 
 		return result;
 	}
 
-	matrix matrix::get_inverse() const
+	Matrix Matrix::GetInverse() const
 	{
-		if (!is_square())
+		if (!IsSquare())
 		{
-			throw std::out_of_range("Can't inverse matrix because matrix is not square");
+			throw std::out_of_range("Can't inverse Matrix because Matrix is not square");
 		}
 
-		const double determiner = get_determiner();
+		const double determiner = getDeterminer();
 
 		if (std::abs(determiner) < std::numeric_limits<double>::epsilon())
 		{
-			throw std::out_of_range("Can't inverse matrix because determiner is 0");
+			throw std::out_of_range("Can't inverse Matrix because determiner is 0");
 		}
 
 		if (_rank == 1)
 		{
-			return matrix { 1, 1, 1 / _data[0][0] };
+			return Matrix { 1, 1, 1 / _data[0][0] };
 		}
 
-		matrix result(_rank, _rank);
+		Matrix result(_rank, _rank);
 
 		int multiplier = 1;
 		for (std::size_t i = 0; i < _rank; i++)
 		{
 			for (std::size_t j = 0; j < _rank; j++)
 			{
-				result._data[i][j] = multiplier * get_minor(j, i) / determiner;
+				result._data[i][j] = multiplier * GetMinor(j, i) / determiner;
 				multiplier *= -1;
 			}
 		}
@@ -299,14 +304,14 @@ namespace toe
 		return result ;
 	}
 	
-	matrix matrix::get_diagonal_matrix() const
+	Matrix Matrix::GetDiagonalMatrix() const
 	{
-		if (!is_single_column())
+		if (!IsSingleColumn())
 		{
 			throw std::out_of_range("Matrix is not single column");
 		}
 
-		matrix result(_columns, _columns, 0);
+		Matrix result(_columns, _columns, 0);
 
 		for (std::size_t i = 0; i < _columns; i++)
 		{
@@ -316,9 +321,9 @@ namespace toe
 		return result;
 	}
 	
-	matrix matrix::get_transposed() const
+	Matrix Matrix::GetTransposed() const
 	{
-		matrix result(_columns, _rows);
+		Matrix result(_columns, _rows);
 
 		for (std::size_t i = 0; i < _rows; i++)
 		{
@@ -331,12 +336,12 @@ namespace toe
 		return result;
 	}
 
-	std::size_t matrix::get_rows() const
+	std::size_t Matrix::GetRows() const
 	{
 		return _rows;
 	}
 
-	std::size_t matrix::get_columns() const
+	std::size_t Matrix::GetColumns() const
 	{
 		return _columns;
 	}

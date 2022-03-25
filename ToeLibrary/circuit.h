@@ -1,5 +1,5 @@
 // файл "toe.h"
-// в данном файле описан класс circuit для работы с графом электрической цепи
+// в данном файле описан класс Circuit для работы с графом электрической цепи
 
 #pragma once
 
@@ -7,21 +7,22 @@
 #include <string>
 #include <vector>
 
-#include "matrix.h"
-#include "branches_data.h"
+#include "Matrix.h"
+#include "BranchesData.h"
 
 namespace toe
 {
-	class circuit
+	class Circuit
 	{
-		branches_data _data;
+		BranchesData _data;
 	public:
-		circuit(const circuit& other) = default;
-		circuit(circuit&& other) noexcept = default;
-		explicit circuit(branches_data&& branches);
-		~circuit() = default;
-
-		[[nodiscard]] matrix get_nodes() const;
-		[[nodiscard]] matrix calculate() const;
+		Circuit(const Circuit& other) = default;
+		Circuit(Circuit&& other) noexcept = default;
+		explicit Circuit(BranchesData&& branches);
+		~Circuit() = default;
+		
+		[[]]
+		[[nodiscard]] Matrix GetNodes() const;
+		[[nodiscard]] Matrix Calculate() const;
 	};
 }

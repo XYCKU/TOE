@@ -6,4 +6,4 @@
 
 #include "gtest/gtest.h"
 #include <random>
-#include "../ToeLibrary/matrix.h"
+#include "../ToeLibrary/Matrix.h"

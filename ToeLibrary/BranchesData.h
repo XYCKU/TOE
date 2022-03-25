@@ -4,7 +4,7 @@
 
 namespace toe
 {
-	struct branches_data
+	struct BranchesData
 	{
 		static constexpr std::size_t argumentsAmount = 6;
 		std::size_t _nodesAmount = 0;
@@ -15,18 +15,18 @@ namespace toe
 		std::vector<double> _voltageValue;
 		std::vector<double> _amperageValue;
 
-		branches_data() = default;
-		branches_data(const branches_data& other) = default;
-		branches_data(branches_data&& other) noexcept = default;
-		branches_data(std::vector<std::size_t>&& branchesNumber, std::vector<std::size_t>&& branchesBegin, std::vector<std::size_t>&& branchesEnd,
+		BranchesData() = default;
+		BranchesData(const BranchesData& other) = default;
+		BranchesData(BranchesData&& other) noexcept = default;
+		BranchesData(std::vector<std::size_t>&& branchesNumber, std::vector<std::size_t>&& branchesBegin, std::vector<std::size_t>&& branchesEnd,
 					std::vector<double>&& resistorValues, std::vector<double>&& voltageValues, std::vector<double>&& amperageValues);
-		branches_data(const std::vector<std::size_t>& branchesNumber, const std::vector<std::size_t>& branchesBegin,
+		BranchesData(const std::vector<std::size_t>& branchesNumber, const std::vector<std::size_t>& branchesBegin,
 									const std::vector<std::size_t>& branchesEnd, const std::vector<double>& resistorValues,
 									const std::vector<double>& voltageValues, const std::vector<double>& amperageValues);
-		~branches_data() = default;
+		~BranchesData() = default;
 
-		void resize(std::size_t newSize);
-		friend std::istream& operator>>(std::istream& in, branches_data& item);
+		void Resize(std::size_t newSize);
+		friend std::istream& operator>>(std::istream& in, BranchesData& item);
 	};
 }
 

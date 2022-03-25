@@ -1,8 +1,8 @@
-#include "branches_data.h"
+#include "BranchesData.h"
 
 namespace toe
 {
-	branches_data::branches_data(std::vector<std::size_t>&& branchesNumber, std::vector<std::size_t>&& branchesBegin,
+	BranchesData::BranchesData(std::vector<std::size_t>&& branchesNumber, std::vector<std::size_t>&& branchesBegin,
 		std::vector<std::size_t>&& branchesEnd, std::vector<double>&& resistorValues,
 		std::vector<double>&& voltageValues, std::vector<double>&& amperageValues)
 			: _branchNumber(std::move(branchesNumber))
@@ -12,7 +12,7 @@ namespace toe
 			, _voltageValue(std::move(voltageValues))
 			, _amperageValue(std::move(amperageValues)) { }
 
-	branches_data::branches_data(const std::vector<std::size_t>& branchesNumber, const std::vector<std::size_t>& branchesBegin,
+	BranchesData::BranchesData(const std::vector<std::size_t>& branchesNumber, const std::vector<std::size_t>& branchesBegin,
 		const std::vector<std::size_t>& branchesEnd, const std::vector<double>& resistorValues,
 		const std::vector<double>& voltageValues, const std::vector<double>& amperageValues)
 		: _branchNumber(branchesNumber)
@@ -22,7 +22,7 @@ namespace toe
 		, _voltageValue(voltageValues)
 		, _amperageValue(amperageValues) { }
 
-	void branches_data::resize(std::size_t newSize)
+	void BranchesData::Resize(std::size_t newSize)
 	{
 		_branchNumber.resize(newSize);
 		_branchBegin.resize(newSize);
@@ -32,7 +32,7 @@ namespace toe
 		_amperageValue.resize(newSize);
 	}
 
-	std::istream& operator>>(std::istream& in, branches_data& item)
+	std::istream& operator>>(std::istream& in, BranchesData& item)
 	{
 		std::size_t branchNumber;
 		std::size_t branchBegin;

@@ -15,36 +15,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="circuit.h">
+    <ClInclude Include="Circuit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="matrix.h">
+    <ClInclude Include="Matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="branches_data.h">
+    <ClInclude Include="BranchesData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="csv_reader.h">
+    <ClInclude Include="CsvReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="file_reader.h">
+    <ClInclude Include="FileReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="circuit.cpp">
+    <ClCompile Include="Circuit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="matrix.cpp">
+    <ClCompile Include="Matrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="branches_data.cpp">
+    <ClCompile Include="BranchesData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="csv_reader.cpp">
+    <ClCompile Include="CsvReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="file_reader.cpp">
+    <ClCompile Include="FileReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

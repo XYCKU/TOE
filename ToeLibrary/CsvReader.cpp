@@ -1,15 +1,15 @@
-#include "csv_reader.h"
+#include "CsvReader.h"
 
 #include <algorithm>
 #include <sstream>
 
 namespace toe
 {
-	csv_reader::csv_reader(const std::string& path, char delimiter)
-		: file_reader(path), _delimiter(delimiter) { }
+	CsvReader::CsvReader(const std::string& path, char delimiter)
+		: FileReader(path), _delimiter(delimiter) { }
 
 
-	std::vector<std::string> csv_reader::Read()
+	std::vector<std::string> CsvReader::Read()
 	{
 		std::vector<std::string> result;
 

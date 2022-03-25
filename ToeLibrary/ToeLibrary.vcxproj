@@ -155,18 +155,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="branches_data.h" />
-    <ClInclude Include="circuit.h" />
-    <ClInclude Include="csv_reader.h" />
-    <ClInclude Include="file_reader.h" />
-    <ClInclude Include="matrix.h" />
+    <ClInclude Include="BranchesData.h" />
+    <ClInclude Include="Circuit.h" />
+    <ClInclude Include="CsvReader.h" />
+    <ClInclude Include="FileReader.h" />
+    <ClInclude Include="Matrix.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="branches_data.cpp" />
-    <ClCompile Include="circuit.cpp" />
-    <ClCompile Include="csv_reader.cpp" />
-    <ClCompile Include="file_reader.cpp" />
-    <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="BranchesData.cpp" />
+    <ClCompile Include="Circuit.cpp" />
+    <ClCompile Include="CsvReader.cpp" />
+    <ClCompile Include="FileReader.cpp" />
+    <ClCompile Include="Matrix.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
