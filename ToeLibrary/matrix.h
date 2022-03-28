@@ -15,7 +15,6 @@ namespace toe
 	public:
 		explicit Matrix(std::vector<std::vector<double>>&& source);
 		explicit Matrix(const std::vector<std::vector<double>>& source);
-		explicit Matrix(std::vector<double>&& matrix);
 		explicit Matrix(const std::vector<double>& source);
 		Matrix(std::size_t rows, std::size_t columns, double value);
 		Matrix(std::size_t rows, std::size_t columns);
@@ -29,7 +28,7 @@ namespace toe
 		Matrix operator-() const;
 		Matrix& operator=(const Matrix&) = default;
 		Matrix& operator=(Matrix&&) = default;
-		const std::vector<double>& operator[](std::size_t index);
+		const std::vector<double>& operator[](std::size_t index) const;
 		bool operator==(const Matrix& other) const;
 		auto operator<=>(const Matrix& other) const = default;
 		friend Matrix operator+(const Matrix& lhs, const Matrix& rhs);

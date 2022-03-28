@@ -27,11 +27,20 @@ namespace toe
 	Matrix::Matrix(const std::vector<std::vector<double>>& source)
 		: Matrix(std::vector<std::vector<double>>(source)) { }
 
-	Matrix::Matrix(std::vector<double>&& matrix)
-		: Matrix(std::vector<std::vector<double>>{ std::move(matrix) }) { }
-
-	Matrix::Matrix(const std::vector<double>& source)
-		: Matrix(std::vector<double>(source)) { }
+	Matrix::Matrix(const std::vector<double>& matrix)
+		: _data(std::vector<std::vector<double>>(matrix.size()))
+		, _rows(matrix.size())
+		, _columns(1)
+		, _rank(_rows == _columns ? _rows : 0)
+	{
+		auto it = matrix.cbegin();
+		for (auto& line : _data)
+		{
+			line.resize(1);
+			line.front() = *it;
+			++it;
+		}
+	}
 
 	Matrix::Matrix(std::size_t rows, std::size_t columns, double value)
 		: _data(std::vector<std::vector<double>>{ rows, std::vector<double>(columns, value) })
@@ -99,7 +108,7 @@ namespace toe
 			{
 				for (std::size_t k = 0; k < lhs._columns; ++k)
 				{
-					resultMatrix[i][j] += lhs._data[i][k] * rhs._data[k][j];
+					resultMatrix[i][j] += lhs[i][k] * rhs[k][j];
 				}
 			}
 		}
@@ -122,7 +131,7 @@ namespace toe
 		return result;
 	}
 
-	const std::vector<double>& Matrix::operator[](std::size_t index)
+	const std::vector<double>& Matrix::operator[](std::size_t index) const
 	{
 		return _data[index];
 	}
@@ -144,7 +153,7 @@ namespace toe
 		{
 			for (std::size_t j = 0; j < lhs._columns; ++j)
 			{
-				resultMatrix[i][j] = lhs._data[i][j] + rhs._data[i][j];
+				resultMatrix[i][j] = lhs[i][j] + rhs[i][j];
 			}
 		}
 
@@ -164,7 +173,7 @@ namespace toe
 		{
 			for (std::size_t j = 0; j < lhs._columns; ++j)
 			{
-				resultMatrix[i][j] = lhs._data[i][j] - rhs._data[i][j];
+				resultMatrix[i][j] = lhs[i][j] - rhs[i][j];
 			}
 		}
 
@@ -179,7 +188,7 @@ namespace toe
 		{
 			for (std::size_t j = 0; j < result._columns; ++j)
 			{
-				result._data[i][j] = -result._data[i][j];
+				result._data[i][j] = -result[i][j];
 			}
 		}
 
@@ -261,11 +270,7 @@ namespace toe
 
 		for (std::size_t i = 0; i < _rank; ++i)
 		{
-			if (std::abs(_data[i][0]) > std::numeric_limits<double>::epsilon())
-			{
-				result += _data[i][0] * multiplier * GetMinor(i, 0);
-			}
-
+			result += multiplier * _data[i][0] * GetMinor(i, 0);
 			multiplier = -multiplier;
 		}
 
@@ -290,15 +295,20 @@ namespace toe
 		{
 			return Matrix { 1, 1, 1 / _data[0][0] };
 		}
-
-		std::vector<std::vector<double>> resultMatrix(_rank, std::vector<double>(_rank));
 		
 		double multiplier = 1 / determiner;
+		std::vector<std::vector<double>> resultMatrix(_rank, std::vector<double>(_rank));
+		
 		for (std::size_t i = 0; i < _rank; i++)
 		{
 			for (std::size_t j = 0; j < _rank; j++)
 			{
 				resultMatrix[i][j] = multiplier * GetMinor(j, i);
+				multiplier = -multiplier;
+			}
+
+			if ((_rank & 1) == 0)
+			{
 				multiplier = -multiplier;
 			}
 		}

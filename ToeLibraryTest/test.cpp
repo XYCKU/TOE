@@ -302,3 +302,36 @@ TEST(IsEqualSize_Tests, IsCompatible_Tests_MatrixSize3x3_ReturnsFalse_Test)
 	toe::Matrix other(4, 3, 1);
 	ASSERT_FALSE(actual.IsEqualSize(other));
 }
+
+TEST(Temp_Tests, VectorInitPerformance)
+{
+	for (int k = 0; k < 1000; ++k)
+	{
+		std::vector<std::vector<double>> vec(1000, std::vector<double>(1000));
+
+		for (auto& line : vec)
+		{
+			for (auto& item : line)
+			{
+				item = k;
+			}
+		}
+	}
+}
+
+TEST(Temp_Tests, VectorReservePerformance)
+{
+	for (int k = 0; k < 1000; ++k)
+	{
+		std::vector<std::vector<double>> vec(1000);
+
+		for (auto& line : vec)
+		{
+			line.resize(1000);
+			for (auto& item : line)
+			{
+				item = k;
+			}
+		}
+	}
+}

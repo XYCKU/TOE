@@ -34,20 +34,20 @@ namespace toe
 	// функция расчета электрической цепи методом узловых потенциалов
 	Matrix Circuit::Calculate() const
 	{
-		Matrix resistorMatrix = Matrix(_data._resistorValue).GetTransposedMatrix();
-		Matrix voltageMatrix = Matrix(_data._voltageValue).GetTransposedMatrix();
-		Matrix amperageMatrix = Matrix(_data._amperageValue).GetTransposedMatrix();
+		Matrix resistorMatrix(_data._resistorValue);
+		Matrix voltageMatrix(_data._voltageValue);
+		Matrix amperageMatrix(_data._amperageValue);
 
 		Matrix resistorDiagonalMatrix = resistorMatrix.GetDiagonalMatrix();
 
-		Matrix circuitGraph = GetNodesMatrix();
+		Matrix circuitGraph = this->GetNodesMatrix();
 		Matrix transposedCircuitGraph = circuitGraph.GetTransposedMatrix();
 
 		Matrix conductivityMatrix = resistorDiagonalMatrix.GetInverseMatrix();
 		
 		// вычисляем потенциалы всех узлов цепи по отношению к базисному узлу
 		Matrix potentialMatrix = (circuitGraph * conductivityMatrix * transposedCircuitGraph).GetInverseMatrix()
-							* (-circuitGraph * conductivityMatrix * voltageMatrix - circuitGraph * amperageMatrix);
+							   * (-circuitGraph * conductivityMatrix * voltageMatrix - circuitGraph * amperageMatrix);
 
 		// вычисляем напряжение на всех ветвях цепи
 		Matrix u_matrix = transposedCircuitGraph * potentialMatrix;
