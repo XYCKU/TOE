@@ -157,16 +157,20 @@
   <ItemGroup>
     <ClInclude Include="BranchesData.h" />
     <ClInclude Include="Circuit.h" />
+    <ClInclude Include="CircuitSolverBase.h" />
     <ClInclude Include="CsvReader.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="PotentialCircuitSolver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BranchesData.cpp" />
     <ClCompile Include="Circuit.cpp" />
+    <ClCompile Include="CircuitSolverBase.cpp" />
     <ClCompile Include="CsvReader.cpp" />
     <ClCompile Include="FileReader.cpp" />
     <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="PotentialCircuitSolver.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

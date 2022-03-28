@@ -21,7 +21,7 @@ namespace toe
 		explicit Circuit(BranchesData&& branches);
 		~Circuit() = default;
 		
-		[[]]
+		
 		[[nodiscard]] Matrix GetNodesMatrix() const;
 		[[nodiscard]] Matrix Calculate() const;
 	};
