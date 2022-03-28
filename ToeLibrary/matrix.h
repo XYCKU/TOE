@@ -12,12 +12,12 @@ namespace toe
 		std::size_t _columns {};
 		std::size_t _rank {};
 
+		void Validate() const;
 	public:
 		explicit Matrix(std::vector<std::vector<double>>&& source);
 		explicit Matrix(const std::vector<std::vector<double>>& source);
 		explicit Matrix(const std::vector<double>& source);
-		Matrix(std::size_t rows, std::size_t columns, double value);
-		Matrix(std::size_t rows, std::size_t columns);
+		Matrix(std::size_t rows, std::size_t columns, double value = 0);
 		Matrix(const Matrix& other) = default;
 		Matrix(Matrix&& other) noexcept = default;
 		

@@ -9,19 +9,34 @@
 
 namespace toe
 {
+	void Matrix::Validate() const
+	{
+		if (_rows == 0)
+		{
+			throw std::out_of_range("Rows amount cannot be 0");
+		}
+
+		if (_columns == 0)
+		{
+			throw std::out_of_range("Columns amount cannot be 0");
+		}
+
+		for (const auto& line : _data)
+		{
+			if (line.size() != _columns)
+			{
+				throw std::length_error("Column has different length.");
+			}
+		}
+	}
+
 	Matrix::Matrix(std::vector<std::vector<double>>&& source)
 		: _data(std::move(source))
 		, _rows(_data.size())
 		, _columns(_data.front().size())
 		, _rank(_rows == _columns ? _rows : 0)
 	{
-		for (const auto& line : _data)
-		{
-			if (line.size() != _columns)
-			{
-				throw std::length_error("Invalid source row length.");
-			}
-		}
+		this->Validate();
 	}
 
 	Matrix::Matrix(const std::vector<std::vector<double>>& source)
@@ -36,23 +51,22 @@ namespace toe
 		auto it = matrix.cbegin();
 		for (auto& line : _data)
 		{
-			line.resize(1);
-			line.front() = *it;
+			line.reserve(1);
+			line.emplace_back(*it);
 			++it;
 		}
+
+		this->Validate();
 	}
 
 	Matrix::Matrix(std::size_t rows, std::size_t columns, double value)
 		: _data(std::vector<std::vector<double>>{ rows, std::vector<double>(columns, value) })
 		, _rows(rows)
 		, _columns(columns)
-		, _rank(_rows == _columns ? _rows : 0) { }
-
-	Matrix::Matrix(std::size_t rows, std::size_t columns)
-		: _data(std::vector<std::vector<double>>{ rows, std::vector<double>(columns) })
-		, _rows(rows)
-		, _columns(columns)
-		, _rank(_rows == _columns ? _rows : 0) { }
+		, _rank(_rows == _columns ? _rows : 0)
+	{
+		this->Validate();
+	}
 
 	bool Matrix::IsCompatible(const Matrix& other) const
 	{
@@ -100,12 +114,14 @@ namespace toe
 			throw std::length_error("Matrices have incompatible sizes.");
 		}
 
-		std::vector<std::vector<double>> resultMatrix(lhs._rows, std::vector<double>(rhs._columns, 0));
+		std::vector<std::vector<double>> resultMatrix(lhs._rows);
 		
 		for (std::size_t i = 0; i < lhs._rows; ++i)
 		{
+			resultMatrix[i].reserve(rhs._columns);
 			for (std::size_t j = 0; j < rhs._columns; ++j)
 			{
+				resultMatrix[i].emplace_back();
 				for (std::size_t k = 0; k < lhs._columns; ++k)
 				{
 					resultMatrix[i][j] += lhs[i][k] * rhs[k][j];
@@ -118,9 +134,8 @@ namespace toe
 	
 	Matrix operator*(const Matrix& source, const double x)
 	{
-		Matrix result = source;
-
-		for (auto& line : result._data)
+		std::vector resultMatrix(source._data);
+		for (auto& line : resultMatrix)
 		{
 			for (auto& element : line)
 			{
@@ -128,7 +143,7 @@ namespace toe
 			}
 		}
 
-		return result;
+		return Matrix{ std::move(resultMatrix) };
 	}
 
 	const std::vector<double>& Matrix::operator[](std::size_t index) const
@@ -147,13 +162,15 @@ namespace toe
 		{
 			throw std::length_error("Matrices have different sizes.");
 		}
-		std::vector<std::vector<double>> resultMatrix(lhs._rows, std::vector<double>(lhs._columns));
+
+		std::vector<std::vector<double>> resultMatrix(lhs._rows);
 		
 		for (std::size_t i = 0; i < lhs._rows; ++i)
 		{
+			resultMatrix[i].reserve(lhs._columns);
 			for (std::size_t j = 0; j < lhs._columns; ++j)
 			{
-				resultMatrix[i][j] = lhs[i][j] + rhs[i][j];
+				resultMatrix[i].emplace_back(lhs[i][j] + rhs[i][j]);
 			}
 		}
 
@@ -167,32 +184,34 @@ namespace toe
 			throw std::length_error("Matrices have different sizes.");
 		}
 
-		std::vector<std::vector<double>> resultMatrix(lhs._rows, std::vector<double>(lhs._columns));
+		std::vector<std::vector<double>> resultMatrix(lhs._rows);
 
 		for (std::size_t i = 0; i < lhs._rows; ++i)
 		{
+			resultMatrix[i].reserve(lhs._columns);
 			for (std::size_t j = 0; j < lhs._columns; ++j)
 			{
-				resultMatrix[i][j] = lhs[i][j] - rhs[i][j];
+				resultMatrix[i].emplace_back(lhs[i][j] - rhs[i][j]);
 			}
 		}
-
+		
 		return Matrix{ std::move(resultMatrix) };
 	}
 	
 	Matrix Matrix::operator-() const
 	{
-		Matrix result = *this;
+		std::vector<std::vector<double>> resultMatrix(_rows);
 
-		for (std::size_t i = 0; i < result._rows; ++i)
+		for (std::size_t i = 0; i < _rows; ++i)
 		{
-			for (std::size_t j = 0; j < result._columns; ++j)
+			resultMatrix[i].reserve(_columns);
+			for (std::size_t j = 0; j < _columns; ++j)
 			{
-				result._data[i][j] = -result[i][j];
+				resultMatrix[i].emplace_back(-_data[i][j]);
 			}
 		}
 
-		return result;
+		return Matrix{ std::move(resultMatrix) };
 	}
 	
 	double Matrix::GetMinor(std::size_t minor_row, std::size_t minor_column) const
@@ -242,7 +261,7 @@ namespace toe
 	{
 		if (!IsSquare())
 		{
-			throw std::out_of_range("Can't calculate determiner for not square Matrix.");
+			throw std::out_of_range("Can't calculate determiner for not square matrix.");
 		}
 
 		if (_rank == 1)

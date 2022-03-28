@@ -22,7 +22,7 @@ int main()
 	auto result = ReadData("../circuit_dc_data/circuit_data_1.csv");
 
 	toe::BranchesData data;
-	
+
 	for(auto& item : result)
 	{
 		std::stringstream ss(item);
