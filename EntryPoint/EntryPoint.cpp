@@ -15,17 +15,10 @@ int main()
 	setlocale(LC_ALL, "ru");
 	std::cout.precision(3);
 	std::cout.setf(std::ios::fixed);
-
-	std::random_device rd;
-	std::mt19937 eng(rd());
-	std::uniform_int_distribution<int> dist{ 1, 3 };
-
+	
 	auto begin = std::chrono::steady_clock::now();
 
-	std::string fileNumber = std::to_string(dist(eng));
-	std::cout << fileNumber << "\n";
-
-	auto result = ReadData("../circuit_dc_data/circuit_data_" + fileNumber + ".csv");
+	auto result = ReadData("../circuit_dc_data/circuit_data_1.csv");
 
 	toe::BranchesData data;
 	
