@@ -7,6 +7,7 @@
 #include "../ToeLibrary/Circuit.h"
 #include "../ToeLibrary/CsvReader.h"
 #include "../ToeLibrary/BranchesData.h"
+#include "../ToeLibrary/PotentialCircuitSolver.h"
 
 std::vector<std::string> ReadData(const std::string& path);
 
@@ -29,8 +30,9 @@ int main()
 	}
 	
 	toe::Circuit circuit(std::move(data));
+	toe::PotentialCircuitSolver solver = toe::PotentialCircuitSolver();
 
-	toe::Matrix IR{ circuit.Calculate() };
+	toe::Matrix IR{ solver.Solve(circuit) };
 
 	std::cout << "Токи в сопротивлениях ветвей, А\n";
 	std::cout << IR.GetTransposedMatrix() << std::endl;
