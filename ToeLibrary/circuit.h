@@ -21,7 +21,9 @@ namespace toe
 		explicit Circuit(BranchesData&& branches);
 		~Circuit() = default;
 		
-		
+		[[nodiscard]] const std::vector<double>& GetResistorValues() const;
+		[[nodiscard]] const std::vector<double>& GetVoltageValues() const;
+		[[nodiscard]] const std::vector<double>& GetAmperageValues() const;
 		[[nodiscard]] Matrix GetNodesMatrix() const;
 		[[nodiscard]] Matrix Calculate() const;
 	};

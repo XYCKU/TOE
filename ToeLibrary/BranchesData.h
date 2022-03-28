@@ -11,9 +11,9 @@ namespace toe
 		std::vector<std::size_t> _branchNumber;
 		std::vector<std::size_t> _branchBegin;
 		std::vector<std::size_t> _branchEnd;
-		std::vector<double> _resistorValue;
-		std::vector<double> _voltageValue;
-		std::vector<double> _amperageValue;
+		std::vector<double> _resistorValues;
+		std::vector<double> _voltageValues;
+		std::vector<double> _amperageValues;
 
 		BranchesData() = default;
 		BranchesData(const BranchesData& other) = default;

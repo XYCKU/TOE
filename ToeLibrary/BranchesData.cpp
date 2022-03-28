@@ -8,9 +8,9 @@ namespace toe
 			: _branchNumber(std::move(branchesNumber))
 			, _branchBegin(std::move(branchesBegin))
 			, _branchEnd(std::move(branchesEnd))
-			, _resistorValue(std::move(resistorValues))
-			, _voltageValue(std::move(voltageValues))
-			, _amperageValue(std::move(amperageValues)) { }
+			, _resistorValues(std::move(resistorValues))
+			, _voltageValues(std::move(voltageValues))
+			, _amperageValues(std::move(amperageValues)) { }
 
 	BranchesData::BranchesData(const std::vector<std::size_t>& branchesNumber, const std::vector<std::size_t>& branchesBegin,
 		const std::vector<std::size_t>& branchesEnd, const std::vector<double>& resistorValues,
@@ -18,18 +18,18 @@ namespace toe
 		: _branchNumber(branchesNumber)
 		, _branchBegin(branchesBegin)
 		, _branchEnd(branchesEnd)
-		, _resistorValue(resistorValues)
-		, _voltageValue(voltageValues)
-		, _amperageValue(amperageValues) { }
+		, _resistorValues(resistorValues)
+		, _voltageValues(voltageValues)
+		, _amperageValues(amperageValues) { }
 
 	void BranchesData::Resize(std::size_t newSize)
 	{
 		_branchNumber.resize(newSize);
 		_branchBegin.resize(newSize);
 		_branchEnd.resize(newSize);
-		_resistorValue.resize(newSize);
-		_voltageValue.resize(newSize);
-		_amperageValue.resize(newSize);
+		_resistorValues.resize(newSize);
+		_voltageValues.resize(newSize);
+		_amperageValues.resize(newSize);
 	}
 
 	std::istream& operator>>(std::istream& in, BranchesData& item)
@@ -49,9 +49,9 @@ namespace toe
 		item._branchNumber.emplace_back(branchNumber);
 		item._branchBegin.emplace_back(branchBegin - 1);
 		item._branchEnd.emplace_back(branchEnd - 1);
-		item._resistorValue.emplace_back(resistorValue);
-		item._voltageValue.emplace_back(voltageValue);
-		item._amperageValue.emplace_back(amperageValue);
+		item._resistorValues.emplace_back(resistorValue);
+		item._voltageValues.emplace_back(voltageValue);
+		item._amperageValues.emplace_back(amperageValue);
 
 		return in;
 	}

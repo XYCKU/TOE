@@ -8,6 +8,21 @@ namespace toe
 	Circuit::Circuit(BranchesData&& branches)
 		: _data(std::move(branches)) { }
 
+	const std::vector<double>& Circuit::GetResistorValues() const
+	{
+		return _data._resistorValues;
+	}
+
+	const std::vector<double>& Circuit::GetVoltageValues() const
+	{
+		return _data._voltageValues;
+	}
+
+	const std::vector<double>& Circuit::GetAmperageValues() const
+	{
+		return _data._amperageValues;
+	}
+
 	// создает топологическую узловую матрицу по графу исходной цепи
 	Matrix Circuit::GetNodesMatrix() const
 	{
@@ -34,9 +49,9 @@ namespace toe
 	// функция расчета электрической цепи методом узловых потенциалов
 	Matrix Circuit::Calculate() const
 	{
-		Matrix resistorMatrix(_data._resistorValue);
-		Matrix voltageMatrix(_data._voltageValue);
-		Matrix amperageMatrix(_data._amperageValue);
+		Matrix resistorMatrix(_data._resistorValues);
+		Matrix voltageMatrix(_data._voltageValues);
+		Matrix amperageMatrix(_data._amperageValues);
 
 		Matrix resistorDiagonalMatrix = resistorMatrix.GetDiagonalMatrix();
 
