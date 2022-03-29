@@ -11,7 +11,9 @@ namespace toe
 	template<typename T>
 	class Matrix
 	{
-		std::vector<std::vector<T>> _data;
+		static inline constexpr double eps = 1e-15;
+
+		std::vector<std::vector<T>> _data;	
 		std::size_t _rows {};
 		std::size_t _columns {};
 		std::size_t _rank {};
@@ -80,7 +82,7 @@ namespace toe
 		
 		~Matrix() = default;
 
-		double& at(std::size_t i, std::size_t j)
+		T& at(std::size_t i, std::size_t j)
 		{
 			return _data.at(i).at(j);
 		}
@@ -102,7 +104,7 @@ namespace toe
 		}
 
 		Matrix<T>& operator=(const Matrix<T>&) = default;
-		Matrix<T>& operator=(Matrix<T>&&) = default;
+		Matrix<T>& operator=(Matrix<T>&&) noexcept = default;
 		const std::vector<T>& operator[](std::size_t index) const
 		{
 			return _data[index];
@@ -279,7 +281,7 @@ namespace toe
 					- _data[1][0] * _data[0][1] * _data[2][2];
 			}
 
-			double result = 0;
+			T result = 0;
 			int multiplier = 1;
 
 			for (std::size_t i = 0; i < _rank; ++i)
@@ -298,9 +300,9 @@ namespace toe
 				throw std::out_of_range("Can't inverse Matrix because Matrix is not square");
 			}
 
-			const double determiner = GetDeterminer();
+			const T determiner = GetDeterminer();
 
-			if (std::abs(determiner) < std::numeric_limits<T>::epsilon())
+			if (std::abs(determiner) < eps)
 			{
 				throw std::out_of_range("Can't inverse Matrix because determiner is 0");
 			}
@@ -310,7 +312,7 @@ namespace toe
 				return Matrix{ 1, 1, 1 / _data[0][0] };
 			}
 
-			double multiplier = 1 / determiner;
+			T multiplier = 1 / determiner;
 			std::vector<std::vector<T>> resultMatrix(_rank, std::vector<T>(_rank));
 
 			for (std::size_t i = 0; i < _rank; i++)
@@ -362,10 +364,8 @@ namespace toe
 			return Matrix{ std::move(resultMatrix) };
 		}
 		
-		[[nodiscard]] bool IsCompatible(const Matrix<T>& other) const
-		{
-			return _columns == other._rows;
-		}
+		[[nodiscard]] bool IsCompatible(const Matrix<T>& other) const;
+		
 
 		[[nodiscard]] bool IsEqualSize(const Matrix<T>& other) const
 		{
@@ -392,4 +392,10 @@ namespace toe
 			return _columns;
 		}
 	};
+
+	template <typename T>
+	bool Matrix<T>::IsCompatible(const Matrix<T>& other) const
+	{
+		return _columns == other._rows;
+	}
 }

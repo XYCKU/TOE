@@ -28,7 +28,7 @@ int main()
 
 	auto result = ReadData("../circuit_dc_data/circuit_data_1.csv");
 
-	using matrix_type = double;
+	using matrix_type = float;
 	toe::BranchesData<matrix_type> data;
 
 	for(auto& item : result)

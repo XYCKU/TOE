@@ -34,7 +34,8 @@ namespace toe
 
 		void Resize(std::size_t newSize);
 
-		friend std::istream& operator>>(std::istream& in, BranchesData<T>& item)
+		template <typename U>
+		friend std::istream& operator>>(std::istream& in, BranchesData<U>& item)
 		{
 			std::size_t branchNumber;
 			std::size_t branchBegin;

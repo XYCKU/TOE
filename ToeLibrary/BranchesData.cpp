@@ -35,29 +35,4 @@ namespace toe
 		_voltageValues.resize(newSize);
 		_amperageValues.resize(newSize);
 	}
-
-	template <typename U>
-	std::istream& operator>>(std::istream& in, BranchesData<U>& item)
-	{
-		std::size_t branchNumber;
-		std::size_t branchBegin;
-		std::size_t branchEnd;
-		U resistorValue;
-		U voltageValue;
-		U amperageValue;
-
-		in >> branchNumber >> branchBegin >> branchEnd >> resistorValue >> voltageValue >> amperageValue;
-
-		item._nodesAmount = std::max(item._nodesAmount, branchBegin);
-		item._nodesAmount = std::max(item._nodesAmount, branchEnd);
-
-		item._branchNumber.emplace_back(branchNumber);
-		item._branchBegin.emplace_back(branchBegin - 1);
-		item._branchEnd.emplace_back(branchEnd - 1);
-		item._resistorValues.emplace_back(resistorValue);
-		item._voltageValues.emplace_back(voltageValue);
-		item._amperageValues.emplace_back(amperageValue);
-
-		return in;
-	}
 }
