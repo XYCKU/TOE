@@ -11,110 +11,31 @@ namespace toe
 	template<typename T>
 	class Matrix
 	{
-		static inline constexpr double eps = 1e-15;
+		static constexpr double eps = 1e-15;
 
 		std::vector<std::vector<T>> _data;	
 		std::size_t _rows {};
 		std::size_t _columns {};
 		std::size_t _rank {};
 
-		void Validate() const
-		{
-			if (_rows == 0)
-			{
-				throw std::out_of_range("Rows amount cannot be 0");
-			}
-
-			if (_columns == 0)
-			{
-				throw std::out_of_range("Columns amount cannot be 0");
-			}
-
-			for (const auto& line : _data)
-			{
-				if (line.size() != _columns)
-				{
-					throw std::length_error("Column has different length.");
-				}
-			}
-		}
+		void Validate() const;
 	public:
-		explicit Matrix(std::vector<std::vector<T>>&& source)
-			: _data(std::move(source))
-			, _rows(_data.size())
-			, _columns(_data.front().size())
-			, _rank(_rows == _columns ? _rows : 0)
-		{
-			this->Validate();
-		}
-
-		explicit Matrix(const std::vector<std::vector<T>>& source)
-			: Matrix(std::vector<std::vector<T>>(source)) { }
-
-		explicit Matrix(const std::vector<T>& source)
-			: _data(std::vector<std::vector<T>>(source.size()))
-			, _rows(source.size())
-			, _columns(1)
-			, _rank(_rows == _columns ? _rows : 0)
-		{
-			auto it = source.cbegin();
-			for (auto& line : _data)
-			{
-				line.reserve(1);
-				line.emplace_back(*it);
-				++it;
-			}
-
-			this->Validate();
-		}
-
-		Matrix(std::size_t rows, std::size_t columns, const T& value = T())
-			: _data(std::vector<std::vector<T>>{ rows, std::vector<T>(columns, value) })
-			, _rows(rows)
-			, _columns(columns)
-			, _rank(_rows == _columns ? _rows : 0)
-		{
-			this->Validate();
-		}
-
+		explicit Matrix(std::vector<std::vector<T>>&& source);
+		explicit Matrix(const std::vector<std::vector<T>>& source);
+		explicit Matrix(const std::vector<T>& source);
+		Matrix(std::size_t rows, std::size_t columns, const T& value = T());
 		Matrix(const Matrix<T>& other) = default;
 		Matrix(Matrix<T>&& other) noexcept = default;
 		
 		~Matrix() = default;
 
-		T& at(std::size_t i, std::size_t j)
-		{
-			return _data.at(i).at(j);
-		}
+		T& at(std::size_t i, std::size_t j);
 
-		Matrix<T> operator-() const
-		{
-			std::vector<std::vector<T>> resultMatrix(_rows);
-
-			for (std::size_t i = 0; i < _rows; ++i)
-			{
-				resultMatrix[i].reserve(_columns);
-				for (std::size_t j = 0; j < _columns; ++j)
-				{
-					resultMatrix[i].emplace_back(-_data[i][j]);
-				}
-			}
-
-			return Matrix{ std::move(resultMatrix) };
-		}
-
+		const std::vector<T>& operator[](std::size_t index) const;
+		Matrix<T> operator-() const;
 		Matrix<T>& operator=(const Matrix<T>&) = default;
 		Matrix<T>& operator=(Matrix<T>&&) noexcept = default;
-		const std::vector<T>& operator[](std::size_t index) const
-		{
-			return _data[index];
-		}
-
-		bool operator==(const Matrix<T>& other) const
-		{
-			return _data == other._data;
-		}
-
+		bool operator==(const Matrix<T>& other) const;
 		auto operator<=>(const Matrix<T>& other) const = default;
 		friend Matrix<T> operator+(const Matrix<T>& lhs, const Matrix<T>& rhs)
 		{
@@ -136,7 +57,6 @@ namespace toe
 
 			return Matrix{ std::move(resultMatrix) };
 		}
-
 		friend Matrix<T> operator-(const Matrix<T>& lhs, const Matrix<T>& rhs)
 		{
 			if (!lhs.IsEqualSize(rhs))
@@ -157,7 +77,6 @@ namespace toe
 
 			return Matrix{ std::move(resultMatrix) };
 		}
-
 		friend Matrix<T> operator*(const Matrix<T>& source, const T& x)
 		{
 			std::vector<std::vector<T>> resultMatrix(source._data);
@@ -171,7 +90,6 @@ namespace toe
 
 			return Matrix{ std::move(resultMatrix) };
 		}
-
 		friend Matrix<T> operator*(const Matrix<T>& lhs, const Matrix<T>& rhs)
 		{
 			if (!lhs.IsCompatible(rhs))
@@ -196,7 +114,6 @@ namespace toe
 
 			return Matrix{ std::move(resultMatrix) };
 		}
-
 		friend std::ostream& operator<<(std::ostream& os, const Matrix<T>& matrix)
 		{
 			for (const auto& line : matrix._data)
@@ -211,191 +128,315 @@ namespace toe
 			return os;
 		}
 
-		[[nodiscard]] T GetMinor(std::size_t minor_row, std::size_t minor_column) const
+		[[nodiscard]] T GetDeterminer() const;
+		[[nodiscard]] T GetMinor(std::size_t minor_row, std::size_t minor_column) const;
+		[[nodiscard]] Matrix<T> GetMinorMatrix(std::size_t minor_row, std::size_t minor_column) const;
+		[[nodiscard]] Matrix<T> GetInverseMatrix() const;
+		[[nodiscard]] Matrix<T> GetDiagonalMatrix() const;
+		[[nodiscard]] Matrix<T> GetTransposedMatrix() const;
+		
+		[[nodiscard]] bool IsCompatible(const Matrix<T>& other) const;
+		[[nodiscard]] bool IsEqualSize(const Matrix<T>& other) const;
+		[[nodiscard]] bool IsSquare() const;
+		[[nodiscard]] bool IsSingleColumn() const;
+
+		[[nodiscard]] std::size_t GetRows() const;
+		[[nodiscard]] std::size_t GetColumns() const;
+	};
+
+	template <typename T>
+	void Matrix<T>::Validate() const
+	{
 		{
-			return GetMinorMatrix(minor_row, minor_column).GetDeterminer();
+			if (_rows == 0)
+			{
+				throw std::out_of_range("Rows amount cannot be 0");
+			}
+
+			if (_columns == 0)
+			{
+				throw std::out_of_range("Columns amount cannot be 0");
+			}
+
+			for (const auto& line : _data)
+			{
+				if (line.size() != _columns)
+				{
+					throw std::length_error("Column has different length.");
+				}
+			}
+		}
+	}
+
+	template <typename T>
+	Matrix<T>::Matrix(std::vector<std::vector<T>>&& source)
+		: _data(std::move(source))
+		, _rows(_data.size())
+		, _columns(_data.front().size())
+		, _rank(_rows == _columns ? _rows : 0)
+	{
+		this->Validate();
+	}
+
+	template <typename T>
+	Matrix<T>::Matrix(const std::vector<std::vector<T>>& source)
+		: Matrix(std::vector<std::vector<T>>(source)) { }
+
+	template <typename T>
+	Matrix<T>::Matrix(const std::vector<T>& source)
+		: _data(std::vector<std::vector<T>>(source.size()))
+		, _rows(source.size())
+		, _columns(1)
+		, _rank(_rows == _columns ? _rows : 0)
+	{
+		auto it = source.cbegin();
+		for (auto& line : _data)
+		{
+			line.reserve(1);
+			line.emplace_back(*it);
+			++it;
 		}
 
-		[[nodiscard]] Matrix<T> GetMinorMatrix(std::size_t minor_row, std::size_t minor_column) const
+		this->Validate();
+	}
+
+	template <typename T>
+	Matrix<T>::Matrix(std::size_t rows, std::size_t columns, const T& value)
+		: _data(std::vector<std::vector<T>>{ rows, std::vector<T>(columns, value) })
+		, _rows(rows)
+		, _columns(columns)
+		, _rank(_rows == _columns ? _rows : 0)
+	{
+		this->Validate();
+	}
+
+	template <typename T>
+	T& Matrix<T>::at(std::size_t i, std::size_t j)
+	{
+		return _data.at(i).at(j);
+	}
+
+	template <typename T>
+	Matrix<T> Matrix<T>::operator-() const
+	{
+		std::vector<std::vector<T>> resultMatrix(_rows);
+
+		for (std::size_t i = 0; i < _rows; ++i)
 		{
-			if (!IsSquare())
+			resultMatrix[i].reserve(_columns);
+			for (std::size_t j = 0; j < _columns; ++j)
 			{
-				throw std::length_error("Matrix is not square.");
+				resultMatrix[i].emplace_back(-_data[i][j]);
 			}
-
-			if (minor_row >= _rows)
-			{
-				throw std::out_of_range("minor_row is greater than source_matrix height.");
-			}
-
-			if (minor_column >= _columns)
-			{
-				throw std::out_of_range("minor_column is greater than source_matrix width.");
-			}
-
-			std::vector<std::vector<T>> resultMatrix(_rank - 1, std::vector<T>(_rank - 1));
-
-			for (std::size_t i = 0; i < minor_row; ++i)
-			{
-				auto minorColumnIterator = std::next(_data[i].cbegin(), minor_column);
-
-				std::copy(_data[i].cbegin(), minorColumnIterator, resultMatrix[i].begin());
-				std::copy(++minorColumnIterator, _data[i].cend(), resultMatrix[i].begin() + minor_column);
-			}
-
-			for (std::size_t i = minor_row + 1; i < _rows; ++i)
-			{
-				auto minorColumnIterator = std::next(_data[i].cbegin(), minor_column);
-
-				std::copy(_data[i].cbegin(), minorColumnIterator, resultMatrix[i - 1].begin());
-				std::copy(++minorColumnIterator, _data[i].cend(), resultMatrix[i - 1].begin() + minor_column);
-			}
-
-			return Matrix(std::move(resultMatrix));
 		}
 
-		[[nodiscard]] T GetDeterminer() const
+		return Matrix{ std::move(resultMatrix) };
+	}
+
+	template <typename T>
+	const std::vector<T>& Matrix<T>::operator[](std::size_t index) const
+	{
+		return _data[index];
+	}
+
+	template <typename T>
+	bool Matrix<T>::operator==(const Matrix<T>& other) const
+	{
+		return _data == other._data;
+	}
+
+	template <typename T>
+	T Matrix<T>::GetMinor(std::size_t minor_row, std::size_t minor_column) const
+	{
+		return GetMinorMatrix(minor_row, minor_column).GetDeterminer();
+	}
+
+	template <typename T>
+	Matrix<T> Matrix<T>::GetMinorMatrix(std::size_t minor_row, std::size_t minor_column) const
+	{
+		if (!IsSquare())
 		{
-			if (!IsSquare())
-			{
-				throw std::out_of_range("Can't calculate determiner for not square matrix.");
-			}
+			throw std::length_error("Matrix is not square.");
+		}
 
-			if (_rank == 1)
-			{
-				return _data[0][0];
-			}
+		if (minor_row >= _rows)
+		{
+			throw std::out_of_range("minor_row is greater than source_matrix height.");
+		}
 
-			if (_rank == 2)
-			{
-				return _data[0][0] * _data[1][1] - _data[0][1] * _data[1][0];
-			}
+		if (minor_column >= _columns)
+		{
+			throw std::out_of_range("minor_column is greater than source_matrix width.");
+		}
 
-			if (_rank == 3)
-			{
-				return _data[0][0] * _data[1][1] * _data[2][2]
-					+ _data[2][0] * _data[0][1] * _data[1][2]
-					+ _data[1][0] * _data[2][1] * _data[0][2]
-					- _data[2][0] * _data[1][1] * _data[0][2]
-					- _data[0][0] * _data[2][1] * _data[1][2]
-					- _data[1][0] * _data[0][1] * _data[2][2];
-			}
+		std::vector<std::vector<T>> resultMatrix(_rank - 1, std::vector<T>(_rank - 1));
 
-			T result = 0;
-			int multiplier = 1;
+		for (std::size_t i = 0; i < minor_row; ++i)
+		{
+			auto minorColumnIterator = std::next(_data[i].cbegin(), minor_column);
 
-			for (std::size_t i = 0; i < _rank; ++i)
+			std::copy(_data[i].cbegin(), minorColumnIterator, resultMatrix[i].begin());
+			std::copy(++minorColumnIterator, _data[i].cend(), resultMatrix[i].begin() + minor_column);
+		}
+
+		for (std::size_t i = minor_row + 1; i < _rows; ++i)
+		{
+			auto minorColumnIterator = std::next(_data[i].cbegin(), minor_column);
+
+			std::copy(_data[i].cbegin(), minorColumnIterator, resultMatrix[i - 1].begin());
+			std::copy(++minorColumnIterator, _data[i].cend(), resultMatrix[i - 1].begin() + minor_column);
+		}
+
+		return Matrix(std::move(resultMatrix));
+	}
+
+	template <typename T>
+	T Matrix<T>::GetDeterminer() const
+	{
+		if (!IsSquare())
+		{
+			throw std::out_of_range("Can't calculate determiner for not square matrix.");
+		}
+
+		if (_rank == 1)
+		{
+			return _data[0][0];
+		}
+
+		if (_rank == 2)
+		{
+			return _data[0][0] * _data[1][1] - _data[0][1] * _data[1][0];
+		}
+
+		if (_rank == 3)
+		{
+			return _data[0][0] * _data[1][1] * _data[2][2]
+				+ _data[2][0] * _data[0][1] * _data[1][2]
+				+ _data[1][0] * _data[2][1] * _data[0][2]
+				- _data[2][0] * _data[1][1] * _data[0][2]
+				- _data[0][0] * _data[2][1] * _data[1][2]
+				- _data[1][0] * _data[0][1] * _data[2][2];
+		}
+
+		T result = 0;
+		int multiplier = 1;
+
+		for (std::size_t i = 0; i < _rank; ++i)
+		{
+			result += multiplier * _data[i][0] * GetMinor(i, 0);
+			multiplier = -multiplier;
+		}
+
+		return result;
+	}
+
+	template <typename T>
+	Matrix<T> Matrix<T>::GetInverseMatrix() const
+	{
+		if (!IsSquare())
+		{
+			throw std::out_of_range("Can't inverse Matrix because Matrix is not square");
+		}
+
+		const T determiner = GetDeterminer();
+
+		if (std::abs(determiner) < eps)
+		{
+			throw std::out_of_range("Can't inverse Matrix because determiner is 0");
+		}
+
+		if (_rank == 1)
+		{
+			return Matrix{ 1, 1, 1 / _data[0][0] };
+		}
+
+		T multiplier = 1 / determiner;
+		std::vector<std::vector<T>> resultMatrix(_rank, std::vector<T>(_rank));
+
+		for (std::size_t i = 0; i < _rank; i++)
+		{
+			for (std::size_t j = 0; j < _rank; j++)
 			{
-				result += multiplier * _data[i][0] * GetMinor(i, 0);
+				resultMatrix[i][j] = multiplier * GetMinor(j, i);
 				multiplier = -multiplier;
 			}
 
-			return result;
-		}
-
-		[[nodiscard]] Matrix<T> GetInverseMatrix() const
-		{
-			if (!IsSquare())
+			if ((_rank & 1) == 0)
 			{
-				throw std::out_of_range("Can't inverse Matrix because Matrix is not square");
+				multiplier = -multiplier;
 			}
+		}
 
-			const T determiner = GetDeterminer();
+		return Matrix{ std::move(resultMatrix) };
+	}
 
-			if (std::abs(determiner) < eps)
+	template <typename T>
+	Matrix<T> Matrix<T>::GetDiagonalMatrix() const
+	{
+		if (!IsSingleColumn())
+		{
+			throw std::out_of_range("Matrix is not single column");
+		}
+
+		std::vector<std::vector<T>> resultMatrix(_rows, std::vector<T>(_rows, 0));
+
+		for (std::size_t i = 0; i < _rows; i++)
+		{
+			resultMatrix[i][i] = _data[i][0];
+		}
+
+		return Matrix{ std::move(resultMatrix) };
+	}
+
+	template <typename T>
+	Matrix<T> Matrix<T>::GetTransposedMatrix() const
+	{
+		std::vector<std::vector<T>> resultMatrix(_columns, std::vector<T>(_rows));
+
+		for (std::size_t i = 0; i < _rows; i++)
+		{
+			for (std::size_t j = 0; j < _columns; j++)
 			{
-				throw std::out_of_range("Can't inverse Matrix because determiner is 0");
+				resultMatrix[j][i] = _data[i][j];
 			}
-
-			if (_rank == 1)
-			{
-				return Matrix{ 1, 1, 1 / _data[0][0] };
-			}
-
-			T multiplier = 1 / determiner;
-			std::vector<std::vector<T>> resultMatrix(_rank, std::vector<T>(_rank));
-
-			for (std::size_t i = 0; i < _rank; i++)
-			{
-				for (std::size_t j = 0; j < _rank; j++)
-				{
-					resultMatrix[i][j] = multiplier * GetMinor(j, i);
-					multiplier = -multiplier;
-				}
-
-				if ((_rank & 1) == 0)
-				{
-					multiplier = -multiplier;
-				}
-			}
-
-			return Matrix{ std::move(resultMatrix) };
 		}
 
-		[[nodiscard]] Matrix<T> GetDiagonalMatrix() const
-		{
-			if (!IsSingleColumn())
-			{
-				throw std::out_of_range("Matrix is not single column");
-			}
-
-			std::vector<std::vector<T>> resultMatrix(_rows, std::vector<T>(_rows, 0));
-
-			for (std::size_t i = 0; i < _rows; i++)
-			{
-				resultMatrix[i][i] = _data[i][0];
-			}
-
-			return Matrix{ std::move(resultMatrix) };
-		}
-
-		[[nodiscard]] Matrix<T> GetTransposedMatrix() const
-		{
-			std::vector<std::vector<T>> resultMatrix(_columns, std::vector<T>(_rows));
-
-			for (std::size_t i = 0; i < _rows; i++)
-			{
-				for (std::size_t j = 0; j < _columns; j++)
-				{
-					resultMatrix[j][i] = _data[i][j];
-				}
-			}
-
-			return Matrix{ std::move(resultMatrix) };
-		}
-		
-		[[nodiscard]] bool IsCompatible(const Matrix<T>& other) const;
-		
-
-		[[nodiscard]] bool IsEqualSize(const Matrix<T>& other) const
-		{
-			return _columns == other._columns && _rows == other._rows;
-		}
-
-		[[nodiscard]] bool IsSquare() const
-		{
-			return _rank > 0;
-		}
-
-		[[nodiscard]] bool IsSingleColumn() const
-		{
-			return _columns == 1;
-		}
-
-		[[nodiscard]] std::size_t GetRows() const
-		{
-			return _rows;
-		}
-
-		[[nodiscard]] std::size_t GetColumns() const
-		{
-			return _columns;
-		}
-	};
+		return Matrix{ std::move(resultMatrix) };
+	}
 
 	template <typename T>
 	bool Matrix<T>::IsCompatible(const Matrix<T>& other) const
 	{
 		return _columns == other._rows;
+	}
+
+	template <typename T>
+	bool Matrix<T>::IsEqualSize(const Matrix<T>& other) const
+	{
+		return _columns == other._columns && _rows == other._rows;
+	}
+
+	template <typename T>
+	bool Matrix<T>::IsSquare() const
+	{
+		return _rank > 0;
+	}
+
+	template <typename T>
+	bool Matrix<T>::IsSingleColumn() const
+	{
+		return _columns == 1;
+	}
+
+	template <typename T>
+	std::size_t Matrix<T>::GetRows() const
+	{
+		return _rows;
+	}
+
+	template <typename T>
+	std::size_t Matrix<T>::GetColumns() const
+	{
+		return _columns;
 	}
 }
