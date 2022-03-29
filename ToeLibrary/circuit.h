@@ -12,19 +12,52 @@
 
 namespace toe
 {
+	template <typename T>
 	class Circuit
 	{
-		BranchesData _data;
+		BranchesData<T> _data;
 	public:
-		Circuit(const Circuit& other) = default;
-		Circuit(Circuit&& other) noexcept = default;
-		explicit Circuit(BranchesData&& branches);
+		Circuit(const Circuit<T>& other) = default;
+		Circuit(Circuit<T>&& other) noexcept = default;
+		explicit Circuit(BranchesData<T>&& branches)
+			: _data(std::move(branches)) { }
 		~Circuit() = default;
 		
-		[[nodiscard]] const std::vector<double>& GetResistorValues() const;
-		[[nodiscard]] const std::vector<double>& GetVoltageValues() const;
-		[[nodiscard]] const std::vector<double>& GetAmperageValues() const;
-		[[nodiscard]] Matrix GetNodesMatrix() const;
-		[[nodiscard]] Matrix Calculate() const;
+		[[nodiscard]] const std::vector<T>& GetResistorValues() const
+		{
+			return _data._resistorValues;
+		}
+
+		[[nodiscard]] const std::vector<T>& GetVoltageValues() const
+		{
+			return _data._voltageValues;
+		}
+
+		[[nodiscard]] const std::vector<T>& GetAmperageValues() const
+		{
+			return _data._amperageValues;
+		}
+
+		[[nodiscard]] Matrix<T> GetNodesMatrix() const
+		{
+			std::vector<std::vector<T>> nodesMatrix(_data._nodesAmount - 1, std::vector<T>(_data._branchNumber.size()));
+
+			for (std::size_t i = 0; i < nodesMatrix.size(); ++i)
+			{
+				for (std::size_t j = 0; j < nodesMatrix.front().size(); ++j)
+				{
+					if (_data._branchBegin[j] == i)
+					{
+						nodesMatrix[i][j] = 1;
+					}
+					else if (_data._branchEnd[j] == i)
+					{
+						nodesMatrix[i][j] = -1;
+					}
+				}
+			}
+
+			return Matrix{ nodesMatrix };
+		}
 	};
 }

@@ -4,12 +4,13 @@
 
 namespace toe
 {
+	template <typename T>
 	class CircuitSolverBase
 	{
 	public:
 		CircuitSolverBase() = default;
 		virtual ~CircuitSolverBase() = default;
-		virtual Matrix Solve(const Circuit& circuit) = 0;
+		virtual Matrix<T> Solve(const Circuit<T>& circuit) = 0;
 	};
 }
 

@@ -1,5 +1,6 @@
 ﻿#include <chrono>
 #include <iostream>
+#include <string>
 #include <random>
 #include <sstream>
 
@@ -11,26 +12,35 @@
 
 std::vector<std::string> ReadData(const std::string& path);
 
+template <typename T>
+T aga(const std::vector<T>& a)
+{
+	return a.front();
+}
+
 int main()
 {
 	setlocale(LC_ALL, "ru");
 	std::cout.precision(3);
 	std::cout.setf(std::ios::fixed);
-	
+
 	auto begin = std::chrono::steady_clock::now();
 
 	auto result = ReadData("../circuit_dc_data/circuit_data_1.csv");
 
-	toe::BranchesData data;
+	using matrix_type = double;
+	toe::BranchesData<matrix_type> data;
 
 	for(auto& item : result)
 	{
 		std::stringstream ss(item);
 		ss >> data;
 	}
+
+	aga(data._branchNumber);
 	
 	toe::Circuit circuit(std::move(data));
-	toe::PotentialCircuitSolver solver = toe::PotentialCircuitSolver();
+	auto solver = toe::PotentialCircuitSolver<matrix_type>();
 
 	toe::Matrix IR{ solver.Solve(circuit) };
 
