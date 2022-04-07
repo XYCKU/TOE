@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <complex>
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>
@@ -12,12 +13,15 @@ namespace toe
 	class Matrix
 	{
 		static constexpr double eps = 1e-15;
+		static constexpr T zero{ 0 };
 
 		std::vector<std::vector<T>> _data;	
 		std::size_t _rows {};
 		std::size_t _columns {};
 		std::size_t _rank {};
 
+		[[nodiscard]] static bool IsZero(T value);
+		[[nodiscard]] static bool IsZero(const std::complex<double>& value);
 		void Validate() const;
 	public:
 		explicit Matrix(std::vector<std::vector<T>>&& source);
@@ -143,6 +147,18 @@ namespace toe
 		[[nodiscard]] std::size_t GetRows() const;
 		[[nodiscard]] std::size_t GetColumns() const;
 	};
+
+	template <typename T>
+	bool Matrix<T>::IsZero(T value)
+	{
+		return std::abs(value) < eps;
+	}
+	
+	template <typename T>
+	bool Matrix<T>::IsZero(const std::complex<double>& value)
+	{
+		return std::abs(value.real() < eps) && std::abs(value.imag() < eps);
+	}
 
 	template <typename T>
 	void Matrix<T>::Validate() const
@@ -333,16 +349,17 @@ namespace toe
 	template <typename T>
 	Matrix<T> Matrix<T>::GetInverseMatrix() const
 	{
+
 		if (!IsSquare())
 		{
-			throw std::out_of_range("Can't inverse Matrix because Matrix is not square");
+			throw std::logic_error("Can't inverse non-square matrix");
 		}
 
 		const T determiner = GetDeterminer();
-
-		if (std::abs(determiner) < eps)
+		
+		if (IsZero(determiner))
 		{
-			throw std::out_of_range("Can't inverse Matrix because determiner is 0");
+			throw std::logic_error("Can't inverse matrix with zero determinant");
 		}
 
 		if (_rank == 1)
@@ -361,7 +378,7 @@ namespace toe
 				multiplier = -multiplier;
 			}
 
-			if ((_rank & 1) == 0)
+			if (_rank % 2 == 0)
 			{
 				multiplier = -multiplier;
 			}
@@ -427,7 +444,7 @@ namespace toe
 	{
 		return _columns == 1;
 	}
-
+	
 	template <typename T>
 	std::size_t Matrix<T>::GetRows() const
 	{
