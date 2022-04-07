@@ -1,5 +1,4 @@
 ﻿#include <chrono>
-#include <complex>
 #include <iostream>
 #include <string>
 #include <random>
@@ -23,7 +22,7 @@ int main()
 
 	auto result = ReadData("../circuit_dc_data/circuit_data_1.csv");
 	
-	using matrix_type = float;
+	using matrix_type = double;
 	toe::BranchesData<matrix_type> data;
 
 	for(const auto& item : result)
@@ -37,10 +36,10 @@ int main()
 
 	toe::Matrix IR{ solver.Solve(circuit) };
 
+	auto end = std::chrono::high_resolution_clock::now();
+
 	std::cout << "Токи в сопротивлениях ветвей, А\n";
 	std::cout << IR.GetTransposedMatrix() << std::endl;
-
-	auto end = std::chrono::high_resolution_clock::now();
 
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
