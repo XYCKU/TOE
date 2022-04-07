@@ -1,5 +1,6 @@
 ﻿#include <chrono>
 #include <iostream>
+#include <string>
 #include <random>
 #include <sstream>
 
@@ -16,28 +17,29 @@ int main()
 	setlocale(LC_ALL, "ru");
 	std::cout.precision(3);
 	std::cout.setf(std::ios::fixed);
-	
-	auto begin = std::chrono::steady_clock::now();
+
+	auto begin = std::chrono::high_resolution_clock::now();
 
 	auto result = ReadData("../circuit_dc_data/circuit_data_1.csv");
+	
+	using matrix_type = double;
+	toe::BranchesData<matrix_type> data;
 
-	toe::BranchesData data;
-
-	for(auto& item : result)
+	for(const auto& item : result)
 	{
 		std::stringstream ss(item);
 		ss >> data;
 	}
-	
+
 	toe::Circuit circuit(std::move(data));
-	toe::PotentialCircuitSolver solver = toe::PotentialCircuitSolver();
+	auto solver = toe::PotentialCircuitSolver<matrix_type>();
 
 	toe::Matrix IR{ solver.Solve(circuit) };
 
+	auto end = std::chrono::high_resolution_clock::now();
+
 	std::cout << "Токи в сопротивлениях ветвей, А\n";
 	std::cout << IR.GetTransposedMatrix() << std::endl;
-
-	auto end = std::chrono::steady_clock::now();
 
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 
